@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Offline - Technophiles</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700;900&family=Rajdhani:wght@400;600&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: #000;
+      color: #e0e0e0;
+      font-family: 'Rajdhani', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      text-align: center;
+    }
+    .logo {
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 900;
+      font-size: 2.5rem;
+      color: #39FF14;
+      text-shadow: 0 0 20px #39FF14, 0 0 40px rgba(57,255,20,0.4);
+      letter-spacing: 4px;
+      margin-bottom: 2rem;
+    }
+    .icon {
+      font-size: 5rem;
+      margin-bottom: 1.5rem;
+      opacity: 0.6;
+    }
+    h1 {
+      font-family: 'Orbitron', sans-serif;
+      font-size: 1.5rem;
+      color: #fff;
+      margin-bottom: 1rem;
+      letter-spacing: 2px;
+    }
+    p {
+      color: #666;
+      max-width: 360px;
+      line-height: 1.7;
+      margin-bottom: 2rem;
+      font-size: 1rem;
+    }
+    .card {
+      background: #0a0a0a;
+      border: 1px solid #1a1a1a;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 420px;
+      width: 100%;
+    }
+    .btn {
+      display: inline-block;
+      background: #39FF14;
+      color: #000;
+      padding: 12px 28px;
+      border-radius: 4px;
+      font-family: 'Orbitron', sans-serif;
+      font-weight: 700;
+      font-size: 0.75rem;
+      letter-spacing: 2px;
+      cursor: pointer;
+      text-decoration: none;
+      transition: box-shadow 0.3s;
+      border: none;
+    }
+    .btn:hover {
+      box-shadow: 0 0 20px rgba(57,255,20,0.6);
+    }
+    .btn-outline {
+      background: transparent;
+      border: 1px solid #39FF14;
+      color: #39FF14;
+      margin-left: 12px;
+    }
+    .btn-outline:hover { background: #39FF1415; }
+    .status {
+      margin-top: 1.5rem;
+      font-size: 0.8rem;
+      color: #444;
+      font-family: monospace;
+    }
+    .dot {
+      display: inline-block;
+      width: 8px;
+      height: 8px;
+      background: #ef4444;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.5; transform: scale(0.8); }
+    }
+    .cached-pages {
+      margin-top: 1.5rem;
+      text-align: left;
+      width: 100%;
+    }
+    .cached-pages p {
+      font-size: 0.75rem;
+      color: #555;
+      margin-bottom: 0.5rem;
+      font-family: monospace;
+      letter-spacing: 1px;
+    }
+    .page-link {
+      display: block;
+      padding: 8px 12px;
+      border: 1px solid #1a1a1a;
+      border-radius: 4px;
+      color: #888;
+      text-decoration: none;
+      font-size: 0.85rem;
+      margin-bottom: 4px;
+      transition: border-color 0.2s, color 0.2s;
+    }
+    .page-link:hover { border-color: #39FF1440; color: #39FF14; }
+  </style>
+</head>
+<body>
+  <div class="logo">TECHNOPHILES</div>
+  <div class="card">
+    <div class="icon">📡</div>
+    <h1>YOU'RE OFFLINE</h1>
+    <p>No internet connection detected. Some cached pages are still available below.</p>
+    <div>
+      <button onclick="tryReconnect()" class="btn">TRY AGAIN</button>
+      <a href="/" class="btn btn-outline">HOME</a>
+    </div>
+    <div class="status">
+      <span class="dot" id="status-dot"></span>
+      <span id="status-text">No connection</span>
+    </div>
+    <div class="cached-pages">
+      <p>CACHED PAGES</p>
+      <a href="/events" class="page-link">📅 Events</a>
+      <a href="/hackathons" class="page-link">⚡ Hackathons</a>
+      <a href="/courses" class="page-link">📚 Courses</a>
+      <a href="/dashboard" class="page-link">🏠 Dashboard</a>
+    </div>
+  </div>
+
+  <script>
+    function tryReconnect() {
+      const btn = document.querySelector('.btn');
+      btn.textContent = 'CHECKING...';
+      fetch('/api/notifications', { method: 'HEAD' })
+        .then(() => { window.location.reload(); })
+        .catch(() => {
+          btn.textContent = 'TRY AGAIN';
+          document.getElementById('status-text').textContent = 'Still offline...';
+        });
+    }
+
+    // Auto-detect connection restore
+    window.addEventListener('online', () => {
+      document.getElementById('status-dot').style.background = '#39FF14';
+      document.getElementById('status-text').textContent = 'Connection restored! Reloading...';
+      setTimeout(() => window.location.reload(), 1200);
+    });
+
+    // Check periodically
+    setInterval(() => {
+      if (navigator.onLine) window.location.reload();
+    }, 10000);
+  </script>
+</body>
+</html>
