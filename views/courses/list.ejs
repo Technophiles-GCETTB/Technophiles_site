@@ -1,0 +1,61 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ LEARN</p>
+      <h1 class="font-display font-bold text-white text-2xl">COURSES</h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="/courses/roadmaps" class="btn-neon text-sm">ROADMAPS</a>
+      <% if (currentUser && ['superadmin','admin'].includes(currentUser.role)) { %>
+      <a href="/courses/create" class="btn-neon-solid text-sm">+ CREATE</a>
+      <% } %>
+    </div>
+  </div>
+  <!-- Filters -->
+  <form method="GET" class="flex flex-wrap gap-3 mb-8">
+    <input type="text" name="search" value="<%= filters.search||'' %>" placeholder="Search courses..." class="input-dark text-sm w-48" />
+    <select name="category" class="input-dark text-sm w-40">
+      <option value="">All Categories</option>
+      <% ['web_dev','dsa','ai_ml','cybersecurity','mobile','cloud','blockchain','other'].forEach(c => { %>
+      <option value="<%= c %>" <%= filters.category===c?'selected':'' %>><%= c.replace('_',' ').toUpperCase() %></option>
+      <% }) %>
+    </select>
+    <select name="level" class="input-dark text-sm w-36">
+      <option value="">All Levels</option>
+      <% ['beginner','intermediate','advanced'].forEach(l => { %>
+      <option value="<%= l %>" <%= filters.level===l?'selected':'' %>><%= l %></option>
+      <% }) %>
+    </select>
+    <button type="submit" class="btn-neon text-sm px-5">FILTER</button>
+  </form>
+  <% if (courses.length === 0) { %>
+  <div class="text-center py-20 card"><p class="text-4xl mb-4">📚</p><p class="text-gray-400 text-lg">No courses available yet</p></div>
+  <% } else { %>
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+    <% courses.forEach(course => { %>
+    <a href="/courses/<%= course._id %>" class="card p-5 block group">
+      <div class="w-full h-32 bg-dark-border rounded mb-4 flex items-center justify-center text-4xl overflow-hidden">
+        <%= course.category==='web_dev'?'🌐':course.category==='dsa'?'🧩':course.category==='ai_ml'?'🤖':course.category==='cybersecurity'?'🔐':course.category==='mobile'?'📱':'📚' %>
+      </div>
+      <div class="flex items-center gap-2 mb-2">
+        <span class="badge badge-neon text-xs"><%= course.category.replace('_',' ') %></span>
+        <span class="badge badge-gray text-xs"><%= course.level %></span>
+      </div>
+      <h3 class="text-white font-semibold mb-1 group-hover:text-neon transition-colors text-sm leading-tight"><%= course.title %></h3>
+      <p class="text-gray-500 text-xs mb-3 line-clamp-2"><%= course.description.substring(0,80) %>...</p>
+      <div class="flex items-center justify-between pt-2 border-t border-dark-border">
+        <% if (enrolledIds.includes(course._id.toString())) { %>
+          <span class="badge badge-neon text-xs">ENROLLED</span>
+        <% } else { %>
+          <span class="text-xs text-gray-500">👤 <%= course.enrolledCount %></span>
+        <% } %>
+        <span class="text-neon text-xs font-mono font-bold">+<%= course.pointsReward %> pts</span>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

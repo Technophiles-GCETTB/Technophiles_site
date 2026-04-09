@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title><%= title || (siteSettings?.seoTitle || 'Technophiles') %></title>
+
+  <!-- Dynamic SEO Meta -->
+  <meta name="description" content="<%= siteSettings?.seoDescription || 'Technophiles - GCETTB Official Tech Club' %>" />
+  <meta name="keywords" content="<%= siteSettings?.seoKeywords || 'technophiles, gcettb, tech club' %>" />
+  <% if (siteSettings?.googleSiteVerification) { %>
+  <meta name="google-site-verification" content="<%= siteSettings.googleSiteVerification %>" />
+  <% } %>
+  <% if (siteSettings?.canonicalUrl) { %>
+  <link rel="canonical" href="<%= siteSettings.canonicalUrl %>" />
+  <% } %>
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="<%= title || siteSettings?.seoTitle || 'Technophiles' %>" />
+  <meta property="og:description" content="<%= siteSettings?.seoDescription || 'GCETTB Official Tech Club' %>" />
+  <meta property="og:type" content="website" />
+  <meta property="og:image" content="<%= siteSettings?.ogImage || '/icons/icon-512.svg' %>" />
+  <% if (siteSettings?.canonicalUrl) { %><meta property="og:url" content="<%= siteSettings.canonicalUrl %>" /><% } %>
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="<%= title || siteSettings?.seoTitle || 'Technophiles' %>" />
+  <meta name="twitter:description" content="<%= siteSettings?.seoDescription || 'GCETTB Official Tech Club' %>" />
+  <meta name="twitter:image" content="<%= siteSettings?.ogImage || '/icons/icon-512.svg' %>" />
+  <% if (siteSettings?.twitterHandle) { %><meta name="twitter:site" content="<%= siteSettings.twitterHandle %>" /><% } %>
+
+  <!-- PWA Meta -->
+  <meta name="theme-color" content="<%= siteSettings?.accentColor || '#39FF14' %>" />
+  <meta name="application-name" content="<%= siteSettings?.siteName || 'Technophiles' %>" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="<%= siteSettings?.siteName || 'Technophiles' %>" />
+  <meta name="mobile-web-app-capable" content="yes" />
+
+  <!-- Favicon — use uploaded favicon if set, else default SVG -->
+  <% if (siteSettings?.logoFaviconUrl) { %>
+  <link rel="icon" href="<%= siteSettings.logoFaviconUrl %>" />
+  <link rel="apple-touch-icon" href="<%= siteSettings.logoFaviconUrl %>" />
+  <% } else { %>
+  <link rel="icon" type="image/svg+xml" href="/icons/icon-96.svg" />
+  <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
+  <% } %>
+
+  <!-- PWA Manifest -->
+  <link rel="manifest" href="/manifest.json" />
+
+  <!-- Google Analytics -->
+  <% if (siteSettings?.googleAnalyticsId) { %>
+  <script async src="https://www.googletagmanager.com/gtag/js?id=<%= siteSettings.googleAnalyticsId %>"></script>
+  <script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','<%= siteSettings.googleAnalyticsId %>');</script>
+  <% } %>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;500;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            neon: '<%= siteSettings?.accentColor || "#39FF14" %>',
+            dark: '#000000',
+            'dark-card': '#0a0a0a',
+            'dark-border': '#1a1a1a',
+            'dark-hover': '#111111',
+          },
+          fontFamily: {
+            mono: ['Share Tech Mono', 'monospace'],
+            display: ['Orbitron', 'sans-serif'],
+            body: ['Rajdhani', 'sans-serif'],
+          },
+          boxShadow: {
+            neon: '0 0 10px <%= siteSettings?.accentColor || "#39FF14" %>, 0 0 20px <%= siteSettings?.accentColor || "#39FF14" %>, 0 0 40px rgba(57,255,20,0.3)',
+            'neon-sm': '0 0 5px <%= siteSettings?.accentColor || "#39FF14" %>, 0 0 10px rgba(57,255,20,0.5)',
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/main.css">
+  <style>
+    * { box-sizing: border-box; }
+    body { background: #000; color: #e0e0e0; font-family: 'Rajdhani', sans-serif; }
+    :root { --neon: <%= siteSettings?.accentColor || '#39FF14' %>; }
+    .neon-text { color: var(--neon); text-shadow: 0 0 10px var(--neon), 0 0 20px color-mix(in srgb, var(--neon) 50%, transparent); }
+    .neon-border { border-color: var(--neon); box-shadow: 0 0 8px color-mix(in srgb, var(--neon) 40%, transparent); }
+    .neon-glow { box-shadow: 0 0 10px var(--neon), 0 0 20px color-mix(in srgb, var(--neon) 30%, transparent); }
+    .card { background: #0a0a0a; border: 1px solid #1a1a1a; border-radius: 8px; transition: all 0.3s ease; }
+    .card:hover { border-color: color-mix(in srgb, var(--neon) 30%, transparent); box-shadow: 0 0 20px color-mix(in srgb, var(--neon) 10%, transparent); }
+    .btn-neon { background: transparent; border: 1px solid var(--neon); color: var(--neon); padding: 8px 20px; border-radius: 4px; cursor: pointer; transition: all 0.3s; font-family: 'Rajdhani', sans-serif; font-weight: 600; letter-spacing: 1px; display: inline-block; text-align: center; }
+    .btn-neon:hover { background: var(--neon); color: #000; box-shadow: 0 0 15px color-mix(in srgb, var(--neon) 60%, transparent); }
+    .btn-neon-solid { background: var(--neon); color: #000; padding: 8px 20px; border-radius: 4px; cursor: pointer; font-weight: 700; letter-spacing: 1px; transition: all 0.3s; border: 1px solid var(--neon); display: inline-block; text-align: center; }
+    .btn-neon-solid:hover { box-shadow: 0 0 20px color-mix(in srgb, var(--neon) 70%, transparent); transform: translateY(-1px); }
+    .input-dark { background: #0a0a0a; border: 1px solid #1a1a1a; color: #e0e0e0; border-radius: 4px; padding: 10px 14px; width: 100%; transition: border-color 0.3s; font-family: 'Rajdhani'; }
+    .input-dark:focus { outline: none; border-color: var(--neon); box-shadow: 0 0 8px color-mix(in srgb, var(--neon) 30%, transparent); }
+    .badge { display: inline-block; padding: 2px 10px; border-radius: 999px; font-size: 11px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; }
+    .badge-neon { background: color-mix(in srgb, var(--neon) 15%, transparent); color: var(--neon); border: 1px solid color-mix(in srgb, var(--neon) 30%, transparent); }
+    .badge-gray { background: #111; color: #888; border: 1px solid #222; }
+    .badge-red { background: rgba(255,50,50,0.15); color: #ff5555; border: 1px solid rgba(255,50,50,0.3); }
+    .badge-yellow { background: rgba(255,200,0,0.15); color: #ffd700; border: 1px solid rgba(255,200,0,0.3); }
+    .badge-purple { background: rgba(147,51,234,0.15); color: #a78bfa; border: 1px solid rgba(147,51,234,0.3); }
+    .badge-blue { background: rgba(59,130,246,0.15); color: #60a5fa; border: 1px solid rgba(59,130,246,0.3); }
+    .sidebar-link { display: flex; align-items: center; gap: 10px; padding: 10px 16px; border-radius: 6px; color: #888; transition: all 0.2s; text-decoration: none; font-size: 15px; font-weight: 500; }
+    .sidebar-link:hover, .sidebar-link.active { background: color-mix(in srgb, var(--neon) 8%, transparent); color: var(--neon); }
+    .scanline { position: fixed; pointer-events: none; top: 0; left: 0; width: 100%; height: 100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); z-index: 9999; }
+    @keyframes pulse-neon { 0%, 100% { opacity: 1; } 50% { opacity: 0.6; } }
+    .pulse-neon { animation: pulse-neon 2s ease-in-out infinite; }
+    @keyframes slideIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+    .slide-in { animation: slideIn 0.3s ease; }
+    ::-webkit-scrollbar { width: 6px; } ::-webkit-scrollbar-track { background: #000; } ::-webkit-scrollbar-thumb { background: color-mix(in srgb, var(--neon) 40%, transparent); border-radius: 3px; } ::-webkit-scrollbar-thumb:hover { background: var(--neon); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #0a0a0a; color: var(--neon); font-family: 'Orbitron'; font-size: 11px; letter-spacing: 2px; text-transform: uppercase; padding: 12px 16px; text-align: left; border-bottom: 1px solid #1a1a1a; }
+    td { padding: 12px 16px; border-bottom: 1px solid #0f0f0f; color: #ccc; font-size: 14px; }
+    tr:hover td { background: #0a0a0a; }
+    .progress-bar { background: #111; border-radius: 999px; overflow: hidden; height: 6px; }
+    .progress-fill { background: linear-gradient(90deg, var(--neon), #00ff88); border-radius: 999px; height: 100%; transition: width 0.5s ease; box-shadow: 0 0 6px var(--neon); }
+    .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+    /* Responsive table */
+    @media (max-width: 768px) {
+      table { display: block; overflow-x: auto; -webkit-overflow-scrolling: touch; }
+      .hide-mobile { display: none !important; }
+    }
+  </style>
+</head>
+<body class="min-h-screen">
+<div class="scanline"></div>
+<% if (typeof currentUser !== 'undefined' && currentUser) { %>
+<script>document.body.dataset.userId = '<%= currentUser._id %>';</script>
+<% } %>

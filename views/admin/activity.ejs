@@ -1,0 +1,50 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">ACTIVITY LOGS</h1>
+    </div>
+    <a href="/admin" class="btn-neon text-sm">← DASHBOARD</a>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Time</th><th>User</th><th>Action</th><th>Entity</th><th>IP</th></tr></thead>
+      <tbody>
+        <% logs.forEach(log => { %>
+        <tr>
+          <td class="text-gray-500 text-xs font-mono whitespace-nowrap"><%= new Date(log.createdAt).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) %></td>
+          <td>
+            <% if (log.user) { %>
+            <div class="flex items-center gap-2">
+              <img src="<%= log.user.avatar||'/images/default-avatar.png' %>" class="w-6 h-6 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <div>
+                <p class="text-white text-xs font-semibold"><%= log.user.name %></p>
+                <p class="text-gray-500 text-xs"><%= log.user.email %></p>
+              </div>
+            </div>
+            <% } else { %><span class="text-gray-600 text-xs">System</span><% } %>
+          </td>
+          <td>
+            <span class="badge <%= log.action.includes('DELETE')||log.action.includes('BAN')?'badge-red':log.action.includes('CREATE')||log.action.includes('REGISTER')?'badge-neon':'badge-gray' %> text-xs">
+              <%= log.action.replace(/_/g,' ') %>
+            </span>
+          </td>
+          <td class="text-gray-400 text-xs"><%= log.entity||'—' %></td>
+          <td class="text-gray-600 text-xs font-mono"><%= log.ip||'—' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+  <!-- Pagination -->
+  <% if (pagination.pages > 1) { %>
+  <div class="flex gap-2 justify-center mt-6">
+    <% for (let p=1; p<=Math.min(pagination.pages,10); p++) { %>
+    <a href="?page=<%= p %>" class="w-8 h-8 flex items-center justify-center text-sm font-mono rounded border <%= pagination.page===p ? 'border-neon text-neon' : 'border-dark-border text-gray-500 hover:border-neon/50' %>"><%= p %></a>
+    <% } %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

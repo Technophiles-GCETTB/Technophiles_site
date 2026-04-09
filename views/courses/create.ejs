@@ -1,0 +1,69 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/courses" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-8">CREATE COURSE</h1>
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ <%= error %></div>
+    <% } %>
+    <form action="/courses" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TITLE *</label>
+        <input type="text" name="title" required placeholder="Complete Web Development Bootcamp" class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DESCRIPTION *</label>
+        <textarea name="description" required rows="4" placeholder="What will students learn..." class="input-dark resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CATEGORY</label>
+          <select name="category" class="input-dark">
+            <% ['web_dev','dsa','ai_ml','cybersecurity','mobile','cloud','blockchain','other'].forEach(c => { %>
+            <option value="<%= c %>"><%= c.replace(/_/g,' ').toUpperCase() %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">LEVEL</label>
+          <select name="level" class="input-dark">
+            <% ['beginner','intermediate','advanced'].forEach(l => { %><option value="<%= l %>"><%= l %></option><% }) %>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">LEARNING OUTCOMES (one per line)</label>
+        <textarea name="learningOutcomes" rows="3" placeholder="Build REST APIs&#10;Deploy to cloud&#10;Use React" class="input-dark resize-none text-sm"></textarea>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">PREREQUISITES (one per line)</label>
+        <textarea name="prerequisites" rows="2" placeholder="Basic HTML/CSS&#10;JavaScript basics" class="input-dark resize-none text-sm"></textarea>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DURATION (hrs)</label>
+          <input type="number" name="estimatedDuration" placeholder="10" min="0" step="0.5" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">POINTS REWARD</label>
+          <input type="number" name="pointsReward" value="50" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">ACCESS</label>
+          <select name="accessLevel" class="input-dark">
+            <option value="internal_only">Internal Only</option>
+            <option value="all">All Users</option>
+          </select>
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TAGS (comma separated)</label>
+        <input type="text" name="tags" placeholder="html, css, javascript" class="input-dark" />
+      </div>
+      <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm">CREATE COURSE</button>
+    </form>
+  </div>
+</main>
+<%- include('../partials/footer') %>

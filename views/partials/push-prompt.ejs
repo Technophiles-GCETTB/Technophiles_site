@@ -1,0 +1,104 @@
+<!-- Push Notification Permission Prompt -->
+<!-- Shown once after login if notifications not yet granted -->
+<div id="push-prompt-overlay" class="hidden fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[200] p-4">
+  <div class="card p-8 max-w-sm w-full relative overflow-hidden slide-in">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+
+    <!-- Bell animation -->
+    <div class="text-center mb-5">
+      <div class="w-16 h-16 bg-neon/10 border-2 border-neon rounded-full flex items-center justify-center mx-auto pulse-neon">
+        <span class="text-3xl">🔔</span>
+      </div>
+    </div>
+
+    <h2 class="font-display font-bold text-white text-xl tracking-widest text-center mb-2">ENABLE NOTIFICATIONS</h2>
+    <p class="text-gray-400 text-sm text-center leading-relaxed mb-5">
+      Stay updated with real-time alerts for:
+    </p>
+
+    <ul class="space-y-2 mb-6">
+      <% const features = [
+        ['🔴','Live class is starting', 'Get notified when your instructor goes live'],
+        ['📅','New events posted', 'Never miss a workshop or seminar'],
+        ['⚡','Hackathon deadlines', 'Submission reminders before deadline'],
+        ['🏆','Badge & points earned', 'Celebrate every achievement'],
+      ]; %>
+      <% features.forEach(([icon, title, desc]) => { %>
+      <li class="flex items-start gap-3 p-2.5 rounded bg-dark-hover">
+        <span class="text-lg flex-shrink-0 mt-0.5"><%= icon %></span>
+        <div>
+          <p class="text-white text-sm font-semibold"><%= title %></p>
+          <p class="text-gray-500 text-xs"><%= desc %></p>
+        </div>
+      </li>
+      <% }) %>
+    </ul>
+
+    <div class="space-y-3">
+      <button onclick="enablePushFromPrompt()" id="push-prompt-enable-btn" class="btn-neon-solid w-full py-3 font-display tracking-widest text-sm">
+        🔔 ENABLE NOTIFICATIONS
+      </button>
+      <button onclick="dismissPushPrompt(false)" class="btn-neon w-full py-2.5 text-sm text-gray-400 border-gray-600">
+        Not Now
+      </button>
+      <button onclick="dismissPushPrompt(true)" class="w-full text-gray-600 text-xs hover:text-gray-400 transition-colors py-1">
+        Don't ask again
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function() {
+  // Only show if: user is logged in, notifications API exists, not already granted/denied, not dismissed
+  const userId = document.body.dataset.userId;
+  if (!userId) return;
+  if (!('Notification' in window) || !('serviceWorker' in navigator)) return;
+  if (Notification.permission === 'granted' || Notification.permission === 'denied') return;
+
+  const dismissKey = `push_prompt_dismissed_${userId}`;
+  const neverKey = `push_prompt_never_${userId}`;
+  if (localStorage.getItem(neverKey) === '1') return;
+
+  // Show after a short delay (let page settle)
+  const lastDismissed = localStorage.getItem(dismissKey);
+  const showAfter = lastDismissed ? parseInt(lastDismissed) + 24 * 60 * 60 * 1000 : 0;
+  if (Date.now() < showAfter) return;
+
+  setTimeout(() => {
+    document.getElementById('push-prompt-overlay')?.classList.remove('hidden');
+  }, 2500);
+})();
+
+async function enablePushFromPrompt() {
+  const btn = document.getElementById('push-prompt-enable-btn');
+  btn.textContent = '⏳ Enabling...';
+  btn.disabled = true;
+
+  try {
+    if (window.subscribeToPush) {
+      await window.subscribeToPush();
+    } else {
+      // Fallback: request permission directly
+      const permission = await Notification.requestPermission();
+      if (permission === 'granted') {
+        showToast?.('🔔 Notifications enabled!', 'success');
+      }
+    }
+  } catch(e) {
+    console.warn('[Push prompt] Error:', e);
+  }
+
+  dismissPushPrompt(false);
+}
+
+function dismissPushPrompt(never) {
+  document.getElementById('push-prompt-overlay')?.classList.add('hidden');
+  const userId = document.body.dataset.userId;
+  if (never) {
+    localStorage.setItem(`push_prompt_never_${userId}`, '1');
+  } else {
+    localStorage.setItem(`push_prompt_dismissed_${userId}`, Date.now().toString());
+  }
+}
+</script>

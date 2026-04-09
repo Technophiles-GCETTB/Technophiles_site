@@ -1,0 +1,71 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ STUDENT PORTAL</p>
+      <h1 class="font-display font-bold text-white text-2xl">WELCOME, <%= user.name.toUpperCase().split(' ')[0] %></h1>
+    </div>
+    <div class="text-right flex flex-col items-end gap-2">
+      <div>
+        <p class="text-3xl font-display font-black neon-text"><%= user.points || 0 %></p>
+        <p class="text-xs text-gray-500 font-mono">TOTAL POINTS</p>
+      </div>
+      <a href="/reports/progress" class="btn-neon text-xs px-4 py-1.5 font-mono">⬇ PROGRESS REPORT</a>
+    </div>
+  </div>
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-8">
+    <div class="card p-4 text-center"><p class="text-2xl font-display font-black text-white">#<%= userRank %></p><p class="text-xs text-gray-500 font-mono mt-1">RANK</p></div>
+    <div class="card p-4 text-center"><p class="text-2xl font-display font-black text-white"><%= myProgress.length %></p><p class="text-xs text-gray-500 font-mono mt-1">COURSES</p></div>
+    <div class="card p-4 text-center"><p class="text-2xl font-display font-black text-white"><%= recentQuizzes.length %></p><p class="text-xs text-gray-500 font-mono mt-1">QUIZZES</p></div>
+    <div class="card p-4 text-center"><p class="text-2xl font-display font-black text-white"><%= user.points || 0 %></p><p class="text-xs text-gray-500 font-mono mt-1">POINTS</p></div>
+  </div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4"><h2 class="font-display text-white font-bold tracking-wide text-sm">MY COURSES</h2><a href="/courses" class="text-neon text-xs hover:underline font-mono">VIEW ALL →</a></div>
+        <% if (myProgress.length === 0) { %><div class="text-center py-8"><p class="text-gray-500 text-sm mb-3">No courses enrolled yet</p><a href="/courses" class="btn-neon text-sm">Browse Courses</a></div>
+        <% } else { %><div class="space-y-4"><% myProgress.forEach(p => { %>
+        <a href="/courses/<%= p.course._id %>/learn" class="flex items-center gap-4 p-3 rounded hover:bg-dark-hover transition-colors block">
+          <div class="w-12 h-12 rounded bg-dark-border border border-dark-border flex items-center justify-center text-2xl">📚</div>
+          <div class="flex-1 min-w-0"><p class="text-white text-sm font-semibold truncate"><%= p.course.title %></p><div class="progress-bar mt-2"><div class="progress-fill" style="width: <%= p.progressPercent %>%"></div></div></div>
+          <span class="text-neon text-xs font-mono whitespace-nowrap"><%= p.progressPercent %>%</span>
+        </a><% }) %></div><% } %>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4"><h2 class="font-display text-white font-bold tracking-wide text-sm">UPCOMING EVENTS</h2><a href="/events" class="text-neon text-xs hover:underline font-mono">VIEW ALL →</a></div>
+        <% if (upcomingEvents.length === 0) { %><p class="text-gray-500 text-sm text-center py-4">No upcoming events</p>
+        <% } else { %><div class="space-y-3"><% upcomingEvents.forEach(event => { %>
+        <a href="/events/<%= event._id %>" class="flex items-center justify-between p-3 rounded hover:bg-dark-hover transition-colors block">
+          <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-neon/10 border border-neon/20 rounded flex items-center justify-center">📅</div>
+            <div><p class="text-white text-sm font-semibold"><%= event.title %></p><p class="text-gray-500 text-xs font-mono"><%= new Date(event.startDate).toLocaleDateString('en-IN') %></p></div>
+          </div>
+          <span class="text-neon text-xs font-mono">+<%= event.pointsReward %></span>
+        </a><% }) %></div><% } %>
+      </div>
+    </div>
+    <div class="space-y-6">
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold tracking-wide text-sm mb-4">RECENT POINTS</h2>
+        <% if (recentPoints.length === 0) { %><p class="text-gray-500 text-sm text-center py-4">No activity yet</p>
+        <% } else { %><div class="space-y-3"><% recentPoints.forEach(tx => { %>
+        <div class="flex items-center justify-between">
+          <div class="min-w-0"><p class="text-sm text-gray-300 truncate"><%= tx.description || tx.type.replace(/_/g,' ') %></p><p class="text-xs text-gray-600 font-mono"><%= new Date(tx.createdAt).toLocaleDateString() %></p></div>
+          <span class="text-neon font-mono font-bold text-sm ml-2 whitespace-nowrap">+<%= tx.points %></span>
+        </div><% }) %></div><% } %>
+        <div class="mt-4 pt-4 border-t border-dark-border"><a href="/leaderboard" class="text-neon text-xs font-mono hover:underline">VIEW LEADERBOARD →</a></div>
+      </div>
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4"><h2 class="font-display text-white font-bold tracking-wide text-sm">QUIZ HISTORY</h2><a href="/quiz" class="text-neon text-xs hover:underline font-mono">ALL →</a></div>
+        <% if (recentQuizzes.length === 0) { %><div class="text-center py-4"><p class="text-gray-500 text-sm mb-3">No quizzes taken</p><a href="/quiz" class="btn-neon text-xs">Take Quiz</a></div>
+        <% } else { %><div class="space-y-3"><% recentQuizzes.forEach(attempt => { %>
+        <div class="flex items-center justify-between">
+          <div><p class="text-sm text-white"><%= attempt.quiz?.title || 'Quiz' %></p><p class="text-xs text-gray-500 font-mono"><%= attempt.percentage %>%</p></div>
+          <span class="badge <%= attempt.isPassed ? 'badge-neon' : 'badge-red' %>"><%= attempt.isPassed ? 'PASS' : 'FAIL' %></span>
+        </div><% }) %></div><% } %>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

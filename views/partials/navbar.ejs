@@ -1,0 +1,240 @@
+<nav class="fixed top-0 left-0 right-0 z-50 border-b border-dark-border bg-black/95 backdrop-blur-sm">
+  <div class="max-w-7xl mx-auto px-4 flex items-center justify-between h-16">
+
+    <!-- Logo -->
+    <a href="/" class="flex items-center gap-3 flex-shrink-0">
+      <% if (siteSettings && siteSettings.logoNavUrl) { %>
+        <img src="<%= siteSettings.logoNavUrl %>" alt="<%= siteSettings.siteName || 'Technophiles' %>" class="h-8 w-auto object-contain max-w-[120px]">
+      <% } else { %>
+        <div class="w-8 h-8 border border-neon neon-glow flex items-center justify-center flex-shrink-0 rounded">
+          <span class="text-neon font-display text-xs font-black">T</span>
+        </div>
+        <span class="font-display font-bold text-white text-sm tracking-widest hidden sm:block"><%= siteSettings?.siteName || 'TECHNOPHILES' %></span>
+      <% } %>
+    </a>
+
+    <!-- Desktop Nav -->
+    <div class="hidden lg:flex items-center gap-4 xl:gap-5">
+      <a href="/events" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">EVENTS</a>
+      <a href="/hackathons" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">HACKATHONS</a>
+      <a href="/live-classes" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">LIVE</a>
+      <% if (currentUser && currentUser.role !== 'external') { %>
+        <a href="/courses" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">COURSES</a>
+        <a href="/quiz" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">QUIZ</a>
+      <% } %>
+      <a href="/roadmaps" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">ROADMAPS</a>
+      <a href="/calendar" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide">CALENDAR</a>
+      <div class="relative" id="more-menu-wrapper">
+        <button onclick="toggleMoreMenu()" class="text-gray-400 hover:text-neon transition-colors text-xs xl:text-sm font-semibold tracking-wide flex items-center gap-1">
+          MORE <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+        </button>
+        <div id="more-dropdown" class="hidden absolute top-full right-0 mt-2 w-48 card border-dark-border shadow-xl z-50 py-1">
+          <a href="/leaderboard" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">🏆 Leaderboard</a>
+          <a href="/sponsors" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">🤝 Sponsors</a>
+          <a href="/members" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">👥 Members</a>
+          <a href="/projects" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">💡 Projects</a>
+          <a href="/about" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">ℹ About</a>
+          <a href="/contact" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">✉ Contact</a>
+          <% if (currentUser && ['superadmin','admin'].includes(currentUser.role)) { %>
+          <div class="border-t border-dark-border mt-1 pt-1">
+            <a href="/certificates/templates" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">📜 Cert Templates</a>
+          </div>
+          <% } %>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right actions -->
+    <div class="flex items-center gap-1 sm:gap-2">
+      <% if (currentUser) { %>
+        <!-- Notifications -->
+        <div class="relative" id="notif-wrapper">
+          <button onclick="toggleNotif()" class="relative p-2 text-gray-400 hover:text-neon transition-colors">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6 6 0 10-12 0v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"/></svg>
+            <% if (unreadNotifications > 0) { %>
+              <span class="absolute -top-0.5 -right-0.5 w-4 h-4 bg-neon text-black text-xs font-bold rounded-full flex items-center justify-center pulse-neon" data-notif-badge><%= unreadNotifications %></span>
+            <% } %>
+          </button>
+          <div id="notif-dropdown" class="hidden absolute right-0 mt-2 w-80 max-w-[calc(100vw-2rem)] card border-dark-border shadow-xl z-50">
+            <div class="p-3 border-b border-dark-border flex justify-between items-center">
+              <span class="text-neon font-display text-xs tracking-widest">NOTIFICATIONS</span>
+              <button onclick="markAllRead()" class="text-xs text-gray-500 hover:text-neon">Mark all read</button>
+            </div>
+            <div id="notif-list" class="max-h-72 overflow-y-auto">
+              <div class="p-4 text-center text-gray-500 text-sm">Loading...</div>
+            </div>
+          </div>
+        </div>
+        <!-- User avatar (desktop) -->
+        <div class="relative hidden sm:block" id="user-menu-wrapper">
+          <button onclick="toggleUserMenu()" class="flex items-center gap-1.5 p-1 rounded hover:bg-dark-hover transition-colors">
+            <img src="<%= currentUser.avatar || '/images/default-avatar.png' %>" alt="" class="w-7 h-7 rounded-full border border-neon/30" onerror="this.src='/images/default-avatar.png'">
+            <span class="text-gray-300 text-sm font-semibold hidden md:block max-w-[80px] truncate"><%= currentUser.name.split(' ')[0] %></span>
+            <svg class="w-3 h-3 text-gray-500 hidden md:block" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="user-dropdown" class="hidden absolute right-0 mt-2 w-48 card border-dark-border shadow-xl z-50 py-1">
+            <div class="px-4 py-2 border-b border-dark-border">
+              <p class="text-sm font-semibold text-white truncate"><%= currentUser.name %></p>
+              <span class="badge badge-neon text-xs"><%= currentUser.role %></span>
+            </div>
+            <a href="/dashboard" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">Dashboard</a>
+            <a href="/auth/profile" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">Profile</a>
+            <a href="/attendance/my" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">My Attendance</a>
+            <% if (['superadmin','admin'].includes(currentUser.role)) { %>
+              <a href="/admin" class="block px-4 py-2 text-sm text-neon hover:bg-dark-hover">Admin Panel</a>
+              <% if (currentUser.role === 'superadmin') { %>
+              <a href="/admin/settings/seo" class="block px-4 py-2 text-sm text-gray-400 hover:text-neon hover:bg-dark-hover">SEO & Branding</a>
+              <% } %>
+            <% } %>
+            <div class="border-t border-dark-border mt-1">
+              <a href="/auth/logout" class="block px-4 py-2 text-sm text-red-400 hover:bg-dark-hover">Logout</a>
+            </div>
+          </div>
+        </div>
+      <% } else { %>
+        <a href="/auth/login" class="btn-neon text-xs px-3 py-1.5 hidden sm:inline-block">LOGIN</a>
+        <a href="/auth/register" class="btn-neon-solid text-xs px-3 py-1.5 hidden sm:inline-block">JOIN</a>
+      <% } %>
+
+      <!-- Burger Button -->
+      <button id="burger-btn" onclick="toggleBurger()" class="lg:hidden p-2 text-gray-400 hover:text-neon transition-colors" aria-label="Open menu">
+        <svg id="burger-icon" class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
+        <svg id="close-icon" class="w-6 h-6 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile Menu -->
+  <div id="mobile-menu" class="hidden lg:hidden bg-black border-t border-dark-border overflow-y-auto" style="max-height: calc(100vh - 64px);">
+    <div class="px-3 py-3 space-y-0.5">
+      <!-- Mobile user card -->
+      <% if (currentUser) { %>
+      <div class="flex items-center gap-3 p-3 mb-3 border border-dark-border rounded-lg bg-dark-card">
+        <img src="<%= currentUser.avatar || '/images/default-avatar.png' %>" class="w-10 h-10 rounded-full border-2 border-neon/40 flex-shrink-0" onerror="this.src='/images/default-avatar.png'">
+        <div class="flex-1 min-w-0">
+          <p class="text-white font-bold truncate"><%= currentUser.name %></p>
+          <span class="badge badge-neon text-xs"><%= currentUser.role %></span>
+        </div>
+        <div class="text-right flex-shrink-0">
+          <p class="text-neon font-display font-bold"><%= currentUser.points || 0 %></p>
+          <p class="text-gray-600 text-xs font-mono">pts</p>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Links grid for tablets, list for phones -->
+      <div class="grid grid-cols-2 sm:grid-cols-3 gap-1">
+        <%
+          const mobileLinks = [
+            ['📅','Events','/events', true],
+            ['⚡','Hackathons','/hackathons', true],
+            ['🔴','Live Classes','/live-classes', true],
+            ['📚','Courses','/courses', currentUser?.role !== 'external'],
+            ['🧠','Quiz','/quiz', currentUser?.role !== 'external'],
+            ['🗺','Roadmaps','/roadmaps', true],
+            ['📅','Calendar','/calendar', true],
+            ['💡','Projects','/projects', true],
+            ['🏆','Leaderboard','/leaderboard', true],
+            ['👥','Members','/members', true],
+            ['🤝','Sponsors','/sponsors', true],
+            ['ℹ','About','/about', true],
+            ['✉','Contact','/contact', true],
+          ];
+        %>
+        <% mobileLinks.forEach(([icon, label, href, show]) => { %>
+          <% if (show) { %>
+          <a href="<%= href %>" onclick="closeBurger()" class="flex flex-col items-center gap-1 p-3 rounded-lg border border-dark-border hover:border-neon/30 hover:bg-dark-hover transition-all text-center">
+            <span class="text-xl"><%= icon %></span>
+            <span class="text-gray-300 text-xs font-semibold"><%= label %></span>
+          </a>
+          <% } %>
+        <% }) %>
+      </div>
+
+      <!-- Auth / Account -->
+      <div class="border-t border-dark-border mt-3 pt-3">
+        <% if (currentUser) { %>
+          <div class="grid grid-cols-2 gap-2">
+            <a href="/dashboard" onclick="closeBurger()" class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-dark-hover text-gray-300 text-sm font-semibold">🏠 Dashboard</a>
+            <a href="/auth/profile" onclick="closeBurger()" class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-dark-hover text-gray-300 text-sm font-semibold">👤 Profile</a>
+            <a href="/attendance/my" onclick="closeBurger()" class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-dark-hover text-gray-300 text-sm font-semibold">📍 Attendance</a>
+            <% if (['superadmin','admin'].includes(currentUser.role)) { %>
+            <a href="/admin" onclick="closeBurger()" class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-dark-hover text-neon text-sm font-bold">⚙ Admin</a>
+            <% } %>
+          </div>
+          <a href="/auth/logout" class="flex items-center gap-2 px-3 py-2.5 rounded-lg hover:bg-dark-hover text-red-400 text-sm font-semibold mt-1">🚪 Logout</a>
+        <% } else { %>
+          <div class="grid grid-cols-2 gap-3">
+            <a href="/auth/login" onclick="closeBurger()" class="btn-neon text-sm py-3 text-center font-display tracking-widest">LOGIN</a>
+            <a href="/auth/register" onclick="closeBurger()" class="btn-neon-solid text-sm py-3 text-center font-display tracking-widest">JOIN</a>
+          </div>
+        <% } %>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<script>
+let burgerOpen = false;
+
+function toggleBurger() {
+  burgerOpen = !burgerOpen;
+  document.getElementById('mobile-menu').classList.toggle('hidden', !burgerOpen);
+  document.getElementById('burger-icon').classList.toggle('hidden', burgerOpen);
+  document.getElementById('close-icon').classList.toggle('hidden', !burgerOpen);
+  document.body.style.overflow = burgerOpen ? 'hidden' : '';
+}
+
+function closeBurger() {
+  if (burgerOpen) toggleBurger();
+}
+
+function toggleMoreMenu() { document.getElementById('more-dropdown').classList.toggle('hidden'); }
+function toggleNotif() {
+  const d = document.getElementById('notif-dropdown');
+  d.classList.toggle('hidden');
+  if (!d.classList.contains('hidden')) loadNotifications();
+}
+function toggleUserMenu() { document.getElementById('user-dropdown')?.classList.toggle('hidden'); }
+
+document.addEventListener('click', (e) => {
+  ['notif-wrapper','user-menu-wrapper','more-menu-wrapper'].forEach(id => {
+    const el = document.getElementById(id);
+    if (el && !el.contains(e.target)) {
+      if (id === 'notif-wrapper') document.getElementById('notif-dropdown')?.classList.add('hidden');
+      if (id === 'user-menu-wrapper') document.getElementById('user-dropdown')?.classList.add('hidden');
+      if (id === 'more-menu-wrapper') document.getElementById('more-dropdown')?.classList.add('hidden');
+    }
+  });
+});
+
+document.addEventListener('keydown', (e) => { if (e.key === 'Escape') closeBurger(); });
+
+// Close on resize to desktop
+window.addEventListener('resize', () => { if (window.innerWidth >= 1024 && burgerOpen) toggleBurger(); });
+
+async function loadNotifications() {
+  try {
+    const res = await fetch('/api/notifications');
+    const data = await res.json();
+    const list = document.getElementById('notif-list');
+    if (!data.notifications?.length) {
+      list.innerHTML = '<div class="p-4 text-center text-gray-500 text-sm">No notifications</div>';
+      return;
+    }
+    list.innerHTML = data.notifications.map(n => `
+      <a href="${n.link || '#'}" class="block p-3 border-b border-dark-border hover:bg-dark-hover ${n.isRead ? '' : 'bg-neon/5'}">
+        <p class="text-sm text-white font-semibold">${n.title}</p>
+        <p class="text-xs text-gray-400 mt-0.5 line-clamp-2">${n.message}</p>
+        <p class="text-xs text-gray-600 mt-1">${new Date(n.createdAt).toLocaleDateString()}</p>
+      </a>
+    `).join('');
+  } catch(e) {}
+}
+
+async function markAllRead() {
+  await fetch('/api/notifications/read-all', { method: 'PUT' });
+  document.querySelector('[data-notif-badge]')?.remove();
+  loadNotifications();
+}
+</script>

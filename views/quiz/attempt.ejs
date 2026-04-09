@@ -1,0 +1,131 @@
+<%- include('../partials/head') %>
+<div class="fixed top-0 left-0 right-0 z-50 bg-black border-b border-dark-border flex items-center justify-between px-3 sm:px-4 h-14">
+  <div class="flex items-center gap-3">
+    <span class="font-display font-bold text-white text-sm"><%= quiz.title %></span>
+    <span class="badge badge-neon"><%= quiz.questions.length %> questions</span>
+  </div>
+  <div class="flex items-center gap-4">
+    <div id="progress-text" class="text-gray-400 text-xs font-mono">Q <span id="current-q">1</span>/<%= quiz.questions.length %></div>
+    <div class="flex items-center gap-2 bg-dark-card border border-dark-border px-3 py-1.5 rounded">
+      <svg class="w-4 h-4 text-neon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+      <span id="timer" class="text-neon font-display font-bold text-sm font-mono"><%= String(Math.floor(quiz.duration/60)).padStart(2,'0') %>:<%= String(quiz.duration%60).padStart(2,'0') %></span>
+    </div>
+  </div>
+</div>
+
+<main class="pt-14 min-h-screen bg-black">
+  <form id="quiz-form" action="/quiz/<%= quiz._id %>/submit" method="POST">
+    <input type="hidden" name="startTime" value="<%= Date.now() %>" />
+
+    <!-- Questions -->
+    <% quiz.questions.forEach((question, qIdx) => { %>
+    <div class="quiz-question <%= qIdx === 0 ? '' : 'hidden' %>" data-index="<%= qIdx %>" id="q-<%= qIdx %>">
+      <div class="max-w-2xl mx-auto px-3 sm:px-4 py-8">
+        <!-- Question Header -->
+        <div class="flex items-center gap-3 mb-6">
+          <span class="w-8 h-8 rounded bg-neon/10 border border-neon/30 flex items-center justify-center text-neon font-mono text-sm font-bold"><%= qIdx+1 %></span>
+          <span class="text-xs text-gray-500 font-mono"><%= question.marks %> mark<%= question.marks!==1?'s':'' %></span>
+        </div>
+        <h2 class="text-white text-xl font-semibold mb-8 leading-relaxed"><%= question.question %></h2>
+        <!-- Options -->
+        <div class="space-y-3">
+          <% question.options.forEach((opt, oIdx) => { %>
+          <label class="option-label flex items-start gap-4 p-4 rounded border border-dark-border cursor-pointer hover:border-neon/40 transition-all" for="q<%= question._id %>_<%= oIdx %>">
+            <input type="radio" name="answers[<%= question._id %>]" value="<%= oIdx %>" id="q<%= question._id %>_<%= oIdx %>" class="mt-0.5 accent-neon hidden" />
+            <span class="w-7 h-7 rounded border border-dark-border flex items-center justify-center text-xs font-mono text-gray-400 flex-shrink-0 option-circle"><%= ['A','B','C','D'][oIdx] %></span>
+            <span class="text-gray-300 text-sm leading-relaxed"><%= opt.text %></span>
+          </label>
+          <% }) %>
+        </div>
+        <!-- Navigation -->
+        <div class="flex items-center justify-between mt-8">
+          <% if (qIdx > 0) { %>
+          <button type="button" onclick="goTo(<%= qIdx-1 %>)" class="btn-neon px-6 py-2 text-sm">← PREV</button>
+          <% } else { %><div></div><% } %>
+          <% if (qIdx < quiz.questions.length - 1) { %>
+          <button type="button" onclick="goTo(<%= qIdx+1 %>)" class="btn-neon-solid px-6 py-2 text-sm">NEXT →</button>
+          <% } else { %>
+          <button type="button" onclick="confirmSubmit()" class="btn-neon-solid px-8 py-2 text-sm font-display tracking-widest">SUBMIT QUIZ</button>
+          <% } %>
+        </div>
+      </div>
+    </div>
+    <% }) %>
+
+    <!-- Question Navigator -->
+    <div class="fixed bottom-0 left-0 right-0 bg-black/95 border-t border-dark-border p-2 sm:p-3">
+      <div class="max-w-2xl mx-auto">
+        <div class="flex flex-wrap gap-2 justify-center">
+          <% quiz.questions.forEach((q, i) => { %>
+          <button type="button" onclick="goTo(<%= i %>)" id="nav-<%= i %>" class="w-8 h-8 rounded border border-dark-border text-xs font-mono text-gray-500 hover:border-neon hover:text-neon transition-all" data-answered="false"><%= i+1 %></button>
+          <% }) %>
+        </div>
+      </div>
+    </div>
+  </form>
+</main>
+
+<!-- Submit Confirm Modal -->
+<div id="submit-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+  <div class="card p-8 max-w-sm w-full text-center">
+    <h3 class="font-display text-white font-bold text-xl mb-3">SUBMIT QUIZ?</h3>
+    <p class="text-gray-400 text-sm mb-6">You cannot change your answers after submission.</p>
+    <p class="text-neon font-mono text-sm mb-6">Answered: <span id="answered-count">0</span>/<%= quiz.questions.length %></p>
+    <div class="flex gap-3">
+      <button onclick="document.getElementById('submit-modal').classList.add('hidden')" class="btn-neon flex-1 py-2 text-sm">CANCEL</button>
+      <button onclick="document.getElementById('quiz-form').submit()" class="btn-neon-solid flex-1 py-2 text-sm font-display">SUBMIT</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let currentQuestion = 0;
+const totalQuestions = <%= quiz.questions.length %>;
+const totalSeconds = <%= quiz.duration * 60 %>;
+let timeLeft = totalSeconds;
+let answeredMap = {};
+
+function goTo(idx) {
+  document.getElementById('q-' + currentQuestion).classList.add('hidden');
+  document.getElementById('q-' + idx).classList.remove('hidden');
+  currentQuestion = idx;
+  document.getElementById('current-q').textContent = idx + 1;
+}
+
+// Option selection highlight
+document.querySelectorAll('input[type=radio]').forEach(radio => {
+  radio.addEventListener('change', function() {
+    const name = this.name;
+    document.querySelectorAll(`input[name="${name}"]`).forEach(r => {
+      r.closest('.option-label').classList.remove('border-neon','bg-neon/5');
+      r.closest('.option-label').querySelector('.option-circle').classList.remove('bg-neon','text-black','border-neon');
+    });
+    this.closest('.option-label').classList.add('border-neon','bg-neon/5');
+    this.closest('.option-label').querySelector('.option-circle').classList.add('bg-neon','text-black','border-neon');
+    const qIdx = parseInt(this.closest('.quiz-question').dataset.index);
+    answeredMap[qIdx] = true;
+    const navBtn = document.getElementById('nav-' + qIdx);
+    navBtn.classList.add('bg-neon','text-black','border-neon');
+    document.getElementById('answered-count').textContent = Object.keys(answeredMap).length;
+  });
+});
+
+function confirmSubmit() {
+  document.getElementById('answered-count').textContent = Object.keys(answeredMap).length;
+  document.getElementById('submit-modal').classList.remove('hidden');
+}
+
+// Timer
+const timerEl = document.getElementById('timer');
+const interval = setInterval(() => {
+  timeLeft--;
+  const m = Math.floor(timeLeft / 60);
+  const s = timeLeft % 60;
+  timerEl.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+  if (timeLeft <= 60) timerEl.classList.add('text-red-400');
+  if (timeLeft <= 0) {
+    clearInterval(interval);
+    document.getElementById('quiz-form').submit();
+  }
+}, 1000);
+</script>

@@ -1,0 +1,106 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/events" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK TO EVENTS</a></div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge badge-neon"><%= event.type %></span>
+          <span class="badge <%= event.status==='published'?'badge-neon':event.status==='ongoing'?'badge-yellow':'badge-gray' %>"><%= event.status %></span>
+          <% if (event.isVirtual) { %><span class="badge badge-gray">VIRTUAL</span><% } %>
+        </div>
+        <h1 class="font-display font-bold text-white text-3xl mb-4"><%= event.title %></h1>
+        <p class="text-gray-400 leading-relaxed whitespace-pre-line"><%= event.description %></p>
+        <% if (event.tags && event.tags.length) { %>
+        <div class="flex flex-wrap gap-2 mt-4">
+          <% event.tags.forEach(tag => { %><span class="badge badge-gray">#<%= tag %></span><% }) %>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Message -->
+      <% const flashMsg = typeof query !== 'undefined' ? query?.msg : null; %>
+      <% if (flashMsg) { %>
+      <div class="p-4 <%= flashMsg==='registered'?'bg-neon/10 border border-neon/30 text-neon':'bg-red-500/10 border border-red-500/30 text-red-400' %> rounded text-sm">
+        <%= flashMsg==='registered' ? '✅ Successfully registered! Check your notifications.' : flashMsg==='already_registered' ? '⚠️ You are already registered for this event.' : flashMsg==='full' ? '❌ This event is full.' : '⚠️ An error occurred.' %>
+      </div>
+      <% } %>
+
+      <!-- Participants Preview -->
+      <% if (currentUser && ['superadmin','admin','event_admin','volunteer'].includes(currentUser.role)) { %>
+      <div class="card p-6">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-display text-white font-bold text-sm">PARTICIPANTS (<%= event.participants.length %>)</h3>
+          <a href="/events/<%= event._id %>/participants" class="text-neon text-xs font-mono hover:underline">MANAGE →</a>
+        </div>
+        <div class="flex -space-x-2">
+          <% event.participants.slice(0,8).forEach(p => { %>
+          <% if (p.user) { %>
+          <img src="<%= p.user.avatar || '/images/default-avatar.png' %>" alt="<%= p.user.name %>" title="<%= p.user.name %>" class="w-8 h-8 rounded-full border-2 border-black" onerror="this.src='/images/default-avatar.png'">
+          <% } %>
+          <% }) %>
+          <% if (event.participants.length > 8) { %>
+          <div class="w-8 h-8 rounded-full border-2 border-black bg-dark-card flex items-center justify-center text-xs text-gray-400">+<%= event.participants.length-8 %></div>
+          <% } %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <!-- Registration Card -->
+      <div class="card p-6">
+        <div class="space-y-3 mb-6 text-sm">
+          <div class="flex justify-between"><span class="text-gray-500">Starts</span><span class="text-white font-mono text-xs"><%= new Date(event.startDate).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Ends</span><span class="text-white font-mono text-xs"><%= new Date(event.endDate).toLocaleString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></span></div>
+          <% if (event.venue) { %><div class="flex justify-between"><span class="text-gray-500">Venue</span><span class="text-white text-xs"><%= event.venue %></span></div><% } %>
+          <div class="flex justify-between"><span class="text-gray-500">Capacity</span><span class="text-white font-mono text-xs"><%= event.participants.length %>/<%= event.maxParticipants %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Points</span><span class="text-neon font-mono font-bold">+<%= event.pointsReward %></span></div>
+        </div>
+        <!-- Capacity bar -->
+        <div class="progress-bar mb-4"><div class="progress-fill" style="width: <%= Math.min((event.participants.length/event.maxParticipants)*100,100) %>%"></div></div>
+
+        <% if (!currentUser) { %>
+          <a href="/auth/login" class="btn-neon-solid w-full text-sm py-3 block text-center">LOGIN TO REGISTER</a>
+        <% } else if (isRegistered) { %>
+          <div class="text-center py-2"><span class="text-neon font-mono text-sm">✓ REGISTERED</span></div>
+          <% if (event.isVirtual && event.meetingLink) { %>
+          <a href="<%= event.meetingLink %>" target="_blank" class="btn-neon w-full text-sm py-2 block text-center mt-2">JOIN MEETING</a>
+          <% } %>
+        <% } else if (event.participants.length >= event.maxParticipants) { %>
+          <div class="text-center text-gray-500 text-sm py-2">Event is Full</div>
+        <% } else if (['published','ongoing'].includes(event.status)) { %>
+          <form action="/events/<%= event._id %>/register" method="POST">
+            <button type="submit" class="btn-neon-solid w-full text-sm py-3">REGISTER NOW</button>
+          </form>
+        <% } %>
+      </div>
+
+      <!-- QR for admins -->
+      <% if (currentUser && ['superadmin','admin','event_admin','volunteer'].includes(currentUser.role) && event.qrCodeImage) { %>
+      <div class="card p-6 text-center">
+        <h3 class="font-display text-white text-xs font-bold tracking-widest mb-3">ATTENDANCE QR</h3>
+        <img src="<%= event.qrCodeImage %>" alt="QR Code" class="w-40 h-40 mx-auto border-2 border-neon rounded p-1 bg-white">
+        <p class="text-xs text-gray-500 font-mono mt-2">Share for attendance</p>
+      </div>
+      <% } %>
+
+      <!-- Admin Actions -->
+      <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+      <div class="card p-4 space-y-2">
+        <a href="/events/<%= event._id %>/edit" class="sidebar-link text-sm">✏️ Edit Event</a>
+        <a href="/events/<%= event._id %>/participants" class="sidebar-link text-sm">👥 Participants</a>
+        <form action="/events/<%= event._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this event?')">
+          <button type="submit" class="sidebar-link text-sm text-red-400 hover:text-red-300 w-full text-left">🗑 Delete Event</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

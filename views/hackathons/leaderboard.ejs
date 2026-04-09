@@ -1,0 +1,69 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-4xl mx-auto">
+  <div class="mb-6"><a href="/hackathons/<%= hackathon._id %>" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="text-center mb-10">
+    <p class="text-neon font-mono text-xs tracking-widest mb-2">◈ RESULTS</p>
+    <h1 class="font-display font-bold text-white text-3xl"><%= hackathon.title %></h1>
+    <p class="text-gray-500 mt-1">Hackathon Leaderboard</p>
+  </div>
+  <% if (submissions.length === 0) { %>
+  <div class="text-center card p-12"><p class="text-4xl mb-3">⏳</p><p class="text-gray-400">No submissions yet</p></div>
+  <% } else { %>
+  <!-- Top 3 -->
+  <% if (submissions.length >= 3) { %>
+  <div class="flex items-end justify-center gap-4 mb-10">
+    <% [[1,'🥈',submission=submissions[1]],[0,'🥇',submission=submissions[0]],[2,'🥉',submission=submissions[2]]].forEach(([pos, medal, sub]) => { %>
+    <% if (sub) { %>
+    <div class="text-center <%= pos===0 ? 'mb-0' : 'mb-4' %>">
+      <p class="text-4xl mb-2"><%= medal %></p>
+      <div class="card p-4 w-32 <%= pos===0 ? 'border-yellow-500/50' : '' %>">
+        <p class="text-white font-bold text-sm truncate"><%= sub.team?.name %></p>
+        <p class="text-neon font-display font-black text-xl"><%= sub.averageScore.toFixed(1) %></p>
+        <p class="text-xs text-gray-500">/ 40 pts</p>
+      </div>
+    </div>
+    <% } %>
+    <% }) %>
+  </div>
+  <% } %>
+  <!-- Full Table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Rank</th><th>Team</th><th>Project</th><th>Score</th><th>Details</th></tr></thead>
+      <tbody>
+        <% submissions.forEach((sub, i) => { %>
+        <tr>
+          <td>
+            <span class="font-display font-black text-lg <%= i===0?'text-yellow-400':i===1?'text-gray-300':i===2?'text-orange-500':'text-gray-500' %>">
+              <%= i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1) %>
+            </span>
+          </td>
+          <td>
+            <div><p class="text-white font-semibold"><%= sub.team?.name %></p>
+            <p class="text-xs text-gray-500"><%= sub.team?.leader?.name %> (Leader)</p></div>
+          </td>
+          <td>
+            <p class="text-white text-sm"><%= sub.projectTitle %></p>
+            <div class="flex gap-1 mt-1">
+              <a href="<%= sub.githubLink %>" target="_blank" class="text-xs text-neon hover:underline">GitHub</a>
+              <% if (sub.demoLink) { %><a href="<%= sub.demoLink %>" target="_blank" class="text-xs text-blue-400 hover:underline ml-2">Demo</a><% } %>
+            </div>
+          </td>
+          <td>
+            <p class="text-neon font-display font-black text-xl"><%= sub.averageScore.toFixed(1) %></p>
+            <p class="text-xs text-gray-500"><%= sub.scores.length %> judge<%= sub.scores.length!==1?'s':'' %></p>
+          </td>
+          <td>
+            <% if (currentUser && currentUser.role === 'judge') { %>
+            <a href="#" onclick="openScoreModal('<%= sub._id %>')" class="btn-neon text-xs">SCORE</a>
+            <% } %>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

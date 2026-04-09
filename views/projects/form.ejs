@@ -1,0 +1,101 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/projects" class="text-gray-500 text-sm hover:text-neon font-mono">← PROJECT SHOWCASE</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-2"><%= project?._id ? 'EDIT PROJECT' : 'SUBMIT PROJECT' %></h1>
+    <p class="text-gray-500 text-sm mb-8">Share what you've built with the Technophiles community</p>
+
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ <%= error %></div>
+    <% } %>
+
+    <form action="<%= project?._id ? '/projects/'+project._id+'?_method=PUT' : '/projects' %>" method="POST" class="space-y-5">
+      <!-- Basic Info -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">PROJECT TITLE *</label>
+        <input type="text" name="title" required value="<%= project?.title||'' %>" placeholder="My Awesome Project" class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">SHORT DESCRIPTION *</label>
+        <textarea name="description" required rows="2" placeholder="One-line summary of what your project does..." class="input-dark resize-none text-sm"><%= project?.description||'' %></textarea>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DETAILED DESCRIPTION</label>
+        <textarea name="longDescription" rows="5" placeholder="Explain the problem you solved, how it works, challenges you faced..." class="input-dark resize-none text-sm"><%= project?.longDescription||'' %></textarea>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CATEGORY</label>
+          <select name="category" class="input-dark text-sm">
+            <% ['web','mobile','ai_ml','iot','game','tool','blockchain','other'].forEach(c => { %>
+            <option value="<%= c %>" <%= project?.category===c?'selected':'' %>><%= c.replace('_',' ').toUpperCase() %></option>
+            <% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TECH STACK (comma separated)</label>
+          <input type="text" name="techStack" value="<%= project?.techStack?.join(',')||'' %>" placeholder="React, Node.js, MongoDB" class="input-dark text-sm" />
+        </div>
+      </div>
+
+      <!-- Links -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">THUMBNAIL IMAGE URL</label>
+        <input type="url" name="thumbnail" value="<%= project?.thumbnail && !project.thumbnail.includes('project-default') ? project.thumbnail : '' %>" placeholder="https://i.imgur.com/... (1200x630 recommended)" class="input-dark text-sm" />
+        <p class="text-xs text-gray-600 mt-1">Paste a direct image URL. Works with Imgur, Google Drive direct links, GitHub raw images.</p>
+      </div>
+      <div class="grid grid-cols-1 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">GITHUB REPOSITORY URL</label>
+          <input type="url" name="githubLink" value="<%= project?.githubLink||'' %>" placeholder="https://github.com/username/repo" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">LIVE DEMO URL</label>
+          <input type="url" name="liveLink" value="<%= project?.liveLink||'' %>" placeholder="https://myproject.vercel.app" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DEMO VIDEO (YouTube URL)</label>
+          <input type="url" name="demoVideo" value="<%= project?.demoVideo||'' %>" placeholder="https://youtube.com/watch?v=..." class="input-dark text-sm" />
+        </div>
+      </div>
+
+      <!-- Authors -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TEAM MEMBERS (one per line, for non-registered members)</label>
+        <textarea name="authorNames" rows="3" placeholder="Rahul Sharma&#10;Priya Patel&#10;Amit Kumar" class="input-dark text-sm resize-none"><%= project?.authorNames?.join('\n')||'' %></textarea>
+        <p class="text-xs text-gray-600 mt-1">Your name is added automatically. Add teammates who don't have accounts here.</p>
+      </div>
+
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TAGS (comma separated)</label>
+        <input type="text" name="tags" value="<%= project?.tags?.join(',')||'' %>" placeholder="open-source, hackathon, college-project" class="input-dark text-sm" />
+      </div>
+
+      <% if (currentUser && ['superadmin','admin'].includes(currentUser.role)) { %>
+      <div class="grid grid-cols-2 gap-4 p-4 bg-neon/5 border border-neon/20 rounded">
+        <div>
+          <label class="block text-xs text-neon mb-2 font-mono">STATUS (Admin)</label>
+          <select name="status" class="input-dark text-sm">
+            <% ['published','featured','draft'].forEach(s => { %><option value="<%= s %>" <%= project?.status===s?'selected':'' %>><%= s.toUpperCase() %></option><% }) %>
+          </select>
+        </div>
+        <div class="flex items-end pb-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="isFeatured" <%= project?.isFeatured?'checked':'' %> class="accent-neon" />
+            <span class="text-gray-400 text-sm">⭐ Feature this project</span>
+          </label>
+        </div>
+      </div>
+      <% } %>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm"><%= project?._id ? 'UPDATE PROJECT' : 'SUBMIT PROJECT' %></button>
+        <a href="/projects" class="btn-neon px-8 py-3 font-display tracking-widest text-sm">CANCEL</a>
+      </div>
+    </form>
+  </div>
+</main>
+<%- include('../partials/footer') %>

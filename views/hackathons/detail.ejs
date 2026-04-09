@@ -1,0 +1,150 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-6xl mx-auto">
+  <div class="mb-6"><a href="/hackathons" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4 sm:gap-6">
+    <!-- Main -->
+    <div class="lg:col-span-2 space-y-4 sm:space-y-6">
+      <div class="card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge <%= hackathon.status==='registration_open'?'badge-neon':hackathon.status==='ongoing'?'badge-yellow':'badge-gray' %>"><%= hackathon.status.replace(/_/g,' ') %></span>
+          <% if (hackathon.isVirtual) { %><span class="badge badge-gray">VIRTUAL</span><% } %>
+        </div>
+        <h1 class="font-display font-bold text-white text-3xl mb-2"><%= hackathon.title %></h1>
+        <% if (hackathon.tagline) { %><p class="text-neon font-mono text-sm mb-4"><%= hackathon.tagline %></p><% } %>
+        <p class="text-gray-400 leading-relaxed whitespace-pre-line"><%= hackathon.description %></p>
+      </div>
+
+      <!-- Problem Statements -->
+      <% if (hackathon.problemStatements && hackathon.problemStatements.length) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">PROBLEM STATEMENTS</h2>
+        <div class="space-y-4">
+          <% hackathon.problemStatements.forEach((ps, i) => { %>
+          <div class="p-4 bg-dark-hover rounded border-l-2 border-neon">
+            <p class="text-neon text-xs font-mono mb-1">PS-<%= String(i+1).padStart(2,'0') %> · <%= ps.domain %></p>
+            <p class="text-white font-semibold"><%= ps.title %></p>
+            <% if (ps.description) { %><p class="text-gray-400 text-sm mt-1"><%= ps.description %></p><% } %>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Prizes -->
+      <% if (hackathon.prizes && hackathon.prizes.length) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">PRIZES</h2>
+        <div class="grid grid-cols-1 sm:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+          <% hackathon.prizes.forEach((prize, i) => { %>
+          <div class="p-4 text-center card <%= i===0?'border-yellow-500/40':i===1?'border-gray-400/40':'border-orange-700/40' %>">
+            <p class="text-3xl mb-2"><%= ['🥇','🥈','🥉'][i] || '🏅' %></p>
+            <p class="text-white font-bold"><%= prize.position %></p>
+            <% if (prize.amount) { %><p class="text-neon font-display font-black text-xl mt-1"><%= prize.amount %></p><% } %>
+            <% if (prize.description) { %><p class="text-gray-500 text-xs mt-1"><%= prize.description %></p><% } %>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Rules -->
+      <% if (hackathon.rules && hackathon.rules.length) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">RULES</h2>
+        <ul class="space-y-2">
+          <% hackathon.rules.forEach((rule, i) => { %>
+          <li class="flex gap-3 text-sm text-gray-400">
+            <span class="text-neon font-mono text-xs mt-0.5"><%= String(i+1).padStart(2,'0') %>.</span>
+            <%= rule %>
+          </li>
+          <% }) %>
+        </ul>
+      </div>
+      <% } %>
+
+      <!-- Judges -->
+      <% if (hackathon.judges && hackathon.judges.length) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">JUDGES</h2>
+        <div class="flex flex-wrap gap-4">
+          <% hackathon.judges.forEach(judge => { %>
+          <div class="flex items-center gap-3">
+            <img src="<%= judge.avatar||'/images/default-avatar.png' %>" class="w-10 h-10 rounded-full border border-neon/30" onerror="this.src='/images/default-avatar.png'">
+            <div><p class="text-white text-sm font-semibold"><%= judge.name %></p><span class="badge badge-neon text-xs">Judge</span></div>
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <!-- Key Dates -->
+      <div class="card p-6">
+        <h3 class="font-display text-neon text-xs tracking-widest font-bold mb-4">KEY DATES</h3>
+        <div class="space-y-3 text-sm">
+          <% if (hackathon.registrationStart) { %>
+          <div><p class="text-gray-500 text-xs font-mono">REGISTRATION</p>
+          <p class="text-white"><%= new Date(hackathon.registrationStart).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %> – <%= new Date(hackathon.registrationEnd).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></p></div>
+          <% } %>
+          <div><p class="text-gray-500 text-xs font-mono">HACKATHON</p>
+          <p class="text-white"><%= new Date(hackathon.hackathonStart).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) %></p></div>
+          <% if (hackathon.submissionDeadline) { %>
+          <div><p class="text-gray-500 text-xs font-mono">SUBMISSION DEADLINE</p>
+          <p class="text-white"><%= new Date(hackathon.submissionDeadline).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) %></p></div>
+          <% } %>
+          <div class="pt-2 border-t border-dark-border">
+            <div class="flex justify-between"><span class="text-gray-500 text-xs">Teams</span><span class="text-neon font-mono"><%= teamCount %>/<%= hackathon.maxTeams %></span></div>
+            <div class="flex justify-between mt-1"><span class="text-gray-500 text-xs">Team size</span><span class="text-white font-mono"><%= hackathon.minTeamSize %>–<%= hackathon.maxTeamSize %></span></div>
+            <div class="flex justify-between mt-1"><span class="text-gray-500 text-xs">Points</span><span class="text-neon font-mono font-bold">+<%= hackathon.pointsReward %></span></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Team Actions -->
+      <% if (currentUser) { %>
+      <div class="card p-6">
+        <h3 class="font-display text-white text-xs font-bold tracking-widest mb-4">YOUR TEAM</h3>
+        <% if (myTeam) { %>
+          <div class="p-3 bg-neon/10 border border-neon/30 rounded mb-3 text-center">
+            <p class="text-neon font-bold"><%= myTeam.name %></p>
+            <p class="text-xs text-gray-400 font-mono">Code: <span class="text-neon"><%= myTeam.inviteCode %></span></p>
+          </div>
+          <a href="/hackathons/<%= hackathon._id %>/teams/<%= myTeam._id %>" class="btn-neon-solid w-full py-2 text-sm text-center block">VIEW TEAM</a>
+        <% } else if (['registration_open'].includes(hackathon.status)) { %>
+          <!-- Create Team -->
+          <form action="/hackathons/<%= hackathon._id %>/team/create" method="POST" class="space-y-3 mb-4">
+            <input type="text" name="teamName" placeholder="Team name..." required class="input-dark text-sm" />
+            <button type="submit" class="btn-neon-solid w-full py-2 text-sm">CREATE TEAM</button>
+          </form>
+          <div class="relative flex items-center gap-2 my-3">
+            <div class="flex-1 h-px bg-dark-border"></div><span class="text-gray-600 text-xs font-mono">OR</span><div class="flex-1 h-px bg-dark-border"></div>
+          </div>
+          <form action="/hackathons/<%= hackathon._id %>/team/join" method="POST" class="space-y-3">
+            <input type="text" name="inviteCode" placeholder="Enter invite code..." required class="input-dark text-sm" />
+            <button type="submit" class="btn-neon w-full py-2 text-sm">JOIN TEAM</button>
+          </form>
+        <% } else { %>
+          <p class="text-gray-500 text-sm text-center py-4">Registration is <%= hackathon.status === 'upcoming' ? 'not open yet' : 'closed' %></p>
+        <% } %>
+      </div>
+      <% } else { %>
+      <div class="card p-6 text-center">
+        <a href="/auth/login" class="btn-neon-solid w-full py-2 text-sm block">LOGIN TO PARTICIPATE</a>
+      </div>
+      <% } %>
+
+      <!-- Leaderboard link -->
+      <% if (['judging','completed'].includes(hackathon.status)) { %>
+      <a href="/hackathons/<%= hackathon._id %>/leaderboard" class="card p-4 block text-center hover:border-neon/40">
+        <p class="text-2xl mb-1">🏆</p>
+        <p class="text-neon font-display text-xs tracking-widest font-bold">VIEW LEADERBOARD</p>
+      </a>
+      <% } %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

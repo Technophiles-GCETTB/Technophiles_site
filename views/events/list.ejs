@@ -1,0 +1,57 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ALL EVENTS</p>
+      <h1 class="font-display font-bold text-white text-2xl">EVENTS</h1>
+    </div>
+    <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+    <a href="/events/create" class="btn-neon-solid text-sm">+ CREATE EVENT</a>
+    <% } %>
+  </div>
+  <form method="GET" class="flex flex-wrap gap-3 mb-8">
+    <input type="text" name="search" value="<%= filters.search||'' %>" placeholder="Search events..." class="input-dark text-sm w-48" />
+    <select name="type" class="input-dark text-sm w-36">
+      <option value="">All Types</option>
+      <% ['workshop','seminar','webinar','competition','meetup','live_class'].forEach(t => { %>
+      <option value="<%= t %>" <%= filters.type===t?'selected':'' %>><%= t %></option>
+      <% }) %>
+    </select>
+    <select name="status" class="input-dark text-sm w-36">
+      <option value="">All Status</option>
+      <% ['published','ongoing','completed'].forEach(s => { %>
+      <option value="<%= s %>" <%= filters.status===s?'selected':'' %>><%= s %></option>
+      <% }) %>
+    </select>
+    <button type="submit" class="btn-neon text-sm px-5">FILTER</button>
+  </form>
+  <% if (events.length === 0) { %>
+  <div class="text-center py-20 card">
+    <p class="text-4xl mb-4">📅</p>
+    <p class="text-gray-400 text-lg mb-2">No events found</p>
+    <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+    <a href="/events/create" class="btn-neon-solid text-sm mt-4 inline-block">Create First Event</a>
+    <% } %>
+  </div>
+  <% } else { %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:gap-6">
+    <% events.forEach(event => { %>
+    <a href="/events/<%= event._id %>" class="card p-5 block group">
+      <div class="flex items-start justify-between mb-3">
+        <span class="badge badge-neon"><%= event.type %></span>
+        <span class="badge <%= event.status==='published'?'badge-neon':event.status==='ongoing'?'badge-yellow':'badge-gray' %>"><%= event.status %></span>
+      </div>
+      <h3 class="text-white font-semibold text-lg mb-2 group-hover:text-neon transition-colors"><%= event.title %></h3>
+      <p class="text-gray-500 text-sm mb-4"><%= event.description.substring(0,120) %>...</p>
+      <div class="pt-3 border-t border-dark-border flex items-center justify-between text-xs text-gray-600 font-mono">
+        <span>🗓 <%= new Date(event.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+        <span>👥 <%= event.participants.length %>/<%= event.maxParticipants %></span>
+        <span class="text-neon">+<%= event.pointsReward %> pts</span>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

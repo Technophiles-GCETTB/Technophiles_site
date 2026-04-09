@@ -1,0 +1,49 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ COMPETE & BUILD</p>
+      <h1 class="font-display font-bold text-white text-2xl">HACKATHONS</h1>
+    </div>
+    <% if (currentUser && ['superadmin','admin'].includes(currentUser.role)) { %>
+    <a href="/hackathons/create" class="btn-neon-solid text-sm">+ CREATE</a>
+    <% } %>
+  </div>
+  <% if (hackathons.length === 0) { %>
+  <div class="text-center py-20 card">
+    <p class="text-5xl mb-4">⚡</p>
+    <p class="text-gray-400 text-lg">No hackathons yet — check back soon!</p>
+  </div>
+  <% } else { %>
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:gap-6">
+    <% hackathons.forEach(h => { %>
+    <a href="/hackathons/<%= h._id %>" class="card p-6 block group relative overflow-hidden">
+      <div class="absolute top-0 right-0 w-32 h-32 rounded-full -translate-y-16 translate-x-16" style="background: radial-gradient(circle, rgba(57,255,20,0.06), transparent)"></div>
+      <div class="flex items-center gap-3 mb-4">
+        <div class="w-12 h-12 bg-neon/10 border border-neon/30 rounded-lg flex items-center justify-center text-2xl">⚡</div>
+        <div>
+          <span class="badge <%= h.status==='registration_open'?'badge-neon':h.status==='ongoing'?'badge-yellow':'badge-gray' %>"><%= h.status.replace(/_/g,' ') %></span>
+          <% if (h.isVirtual) { %><span class="badge badge-gray ml-1">VIRTUAL</span><% } %>
+        </div>
+      </div>
+      <h3 class="text-white font-bold text-xl mb-1 group-hover:text-neon transition-colors"><%= h.title %></h3>
+      <% if (h.tagline) { %><p class="text-gray-500 text-sm mb-3"><%= h.tagline %></p><% } %>
+      <p class="text-gray-500 text-sm mb-4 line-clamp-2"><%= h.description.substring(0,100) %>...</p>
+      <% if (h.prizes && h.prizes.length) { %>
+      <div class="flex gap-2 mb-4">
+        <% h.prizes.slice(0,3).forEach((p,i) => { %><span class="badge badge-yellow text-xs"><%= ['🥇','🥈','🥉'][i] %> <%= p.amount || p.position %></span><% }) %>
+      </div>
+      <% } %>
+      <div class="pt-4 border-t border-dark-border grid grid-cols-2 gap-2 text-xs font-mono text-gray-500">
+        <span>👥 Max <%= h.maxTeamSize %>/team</span>
+        <span class="text-right text-neon">+<%= h.pointsReward %> pts</span>
+        <span>🗓 <%= new Date(h.hackathonStart).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+        <span class="text-right">Teams: <%= h.maxTeams %></span>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

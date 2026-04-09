@@ -1,0 +1,113 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/courses/<%= course._id %>/edit" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK TO COURSE</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-2"><%= mod ? 'EDIT MODULE' : 'ADD MODULE' %></h1>
+    <p class="text-gray-500 text-sm mb-8">Course: <span class="text-neon"><%= course.title %></span></p>
+
+    <form action="<%= mod ? '/courses/'+course._id+'/modules/'+mod._id+'?_method=PUT' : '/courses/'+course._id+'/modules' %>" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MODULE TITLE *</label>
+        <input type="text" name="title" required value="<%= mod?.title||'' %>" placeholder="Introduction to React Hooks" class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DESCRIPTION</label>
+        <textarea name="description" rows="2" placeholder="What this module covers..." class="input-dark resize-none text-sm"><%= mod?.description||'' %></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MODULE TYPE</label>
+          <select name="type" id="module-type" onchange="updateTypeFields()" class="input-dark text-sm">
+            <% ['video','article','quiz','live','other'].forEach(t => { %><option value="<%= t %>" <%= mod?.type===t?'selected':'' %>><%= t.toUpperCase() %></option><% }) %>
+          </select>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DURATION (minutes)</label>
+          <input type="number" name="duration" value="<%= mod?.content?.duration||0 %>" min="0" class="input-dark text-sm" />
+        </div>
+      </div>
+
+      <!-- Video URL -->
+      <div id="video-section">
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">VIDEO URL (YouTube or direct link)</label>
+        <input type="url" name="videoUrl" value="<%= mod?.content?.videoUrl||'' %>" placeholder="https://youtube.com/watch?v=..." class="input-dark text-sm" />
+        <p class="text-xs text-gray-600 mt-1">Paste a YouTube URL — it will auto-embed as a player</p>
+      </div>
+
+      <!-- Article content -->
+      <div id="article-section" class="hidden">
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">ARTICLE CONTENT (HTML supported)</label>
+        <textarea name="article" rows="8" placeholder="<h2>Section Title</h2><p>Content here...</p>" class="input-dark text-sm resize-none font-mono"><%= mod?.content?.article||'' %></textarea>
+      </div>
+
+      <!-- Resources -->
+      <div>
+        <div class="flex items-center justify-between mb-3">
+          <label class="text-xs text-gray-400 font-mono tracking-wider">RESOURCE LINKS</label>
+          <button type="button" onclick="addResource()" class="btn-neon text-xs px-3 py-1">+ ADD RESOURCE</button>
+        </div>
+        <div id="resources-list" class="space-y-2">
+          <% if (mod?.content?.resources?.length) { %>
+          <% mod.content.resources.forEach(r => { %>
+          <div class="resource-row grid grid-cols-3 gap-2">
+            <input type="text" name="res_title" value="<%= r.title %>" placeholder="Resource name" class="input-dark text-xs" />
+            <input type="url" name="res_url" value="<%= r.url %>" placeholder="https://..." class="input-dark text-xs" />
+            <select name="res_type" class="input-dark text-xs">
+              <% ['link','pdf','video','doc'].forEach(t => { %><option value="<%= t %>" <%= r.type===t?'selected':'' %>><%= t.toUpperCase() %></option><% }) %>
+            </select>
+          </div>
+          <% }) %>
+          <% } %>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">POINTS REWARD</label>
+          <input type="number" name="pointsReward" value="<%= mod?.pointsReward||5 %>" min="0" class="input-dark text-sm" />
+        </div>
+        <div class="flex items-end pb-2">
+          <label class="flex items-center gap-2 cursor-pointer">
+            <input type="checkbox" name="isPreview" <%= mod?.isPreview?'checked':'' %> class="accent-neon" />
+            <span class="text-gray-400 text-sm">Free Preview (visible without enrollment)</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm"><%= mod ? 'UPDATE' : 'ADD' %> MODULE</button>
+        <a href="/courses/<%= course._id %>/edit" class="btn-neon px-8 py-3 font-display tracking-widest text-sm">CANCEL</a>
+      </div>
+    </form>
+  </div>
+</main>
+
+<script>
+function updateTypeFields() {
+  const type = document.getElementById('module-type').value;
+  document.getElementById('video-section').classList.toggle('hidden', type !== 'video');
+  document.getElementById('article-section').classList.toggle('hidden', type !== 'article');
+}
+
+function addResource() {
+  const row = document.createElement('div');
+  row.className = 'resource-row grid grid-cols-3 gap-2';
+  row.innerHTML = `
+    <input type="text" name="res_title" placeholder="Resource name" class="input-dark text-xs" />
+    <input type="url" name="res_url" placeholder="https://..." class="input-dark text-xs" />
+    <select name="res_type" class="input-dark text-xs">
+      <option value="link">LINK</option>
+      <option value="pdf">PDF</option>
+      <option value="video">VIDEO</option>
+      <option value="doc">DOC</option>
+    </select>
+  `;
+  document.getElementById('resources-list').appendChild(row);
+}
+
+// Init on load
+updateTypeFields();
+</script>
+<%- include('../partials/footer') %>

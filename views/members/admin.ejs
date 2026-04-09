@@ -1,0 +1,50 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">MANAGE MEMBERS</h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="/members" class="btn-neon text-sm">VIEW PUBLIC PAGE</a>
+      <a href="/members/create" class="btn-neon-solid text-sm">+ ADD MEMBER</a>
+    </div>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Member</th><th>Post</th><th>Category</th><th>Order</th><th>Status</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% members.forEach(m => { %>
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <img src="<%= m.image %>" class="w-9 h-9 rounded-full border border-dark-border object-cover" onerror="this.src='/images/default-avatar.png'">
+              <div>
+                <p class="text-white font-semibold"><%= m.name %></p>
+                <% if (m.department) { %><p class="text-gray-500 text-xs"><%= m.department %> <%= m.year || '' %></p><% } %>
+              </div>
+            </div>
+          </td>
+          <td class="text-neon text-sm font-mono"><%= m.post %></td>
+          <td><span class="badge badge-gray text-xs"><%= m.category %></span></td>
+          <td class="text-gray-400 text-xs font-mono"><%= m.order %></td>
+          <td><span class="badge <%= m.isActive ? 'badge-neon' : 'badge-red' %> text-xs"><%= m.isActive ? 'ACTIVE' : 'HIDDEN' %></span></td>
+          <td>
+            <div class="flex gap-3">
+              <a href="/members/<%= m._id %>/edit" class="text-xs text-neon hover:underline font-mono">EDIT</a>
+              <form action="/members/<%= m._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete <%= m.name %>?')">
+                <button type="submit" class="text-xs text-red-400 hover:text-red-300 font-mono">DELETE</button>
+              </form>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+    <% if (members.length === 0) { %>
+    <div class="p-10 text-center"><p class="text-gray-500">No members added yet.</p><a href="/members/create" class="btn-neon-solid text-sm mt-4 inline-block">Add First Member</a></div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

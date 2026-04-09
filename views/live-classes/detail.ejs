@@ -1,0 +1,169 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/live-classes" class="text-gray-500 text-sm hover:text-neon font-mono">← LIVE CLASSES</a></div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Main -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <% if (lc.status === 'live') { %>
+          <span class="badge badge-red flex items-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span> LIVE NOW</span>
+          <% } else { %>
+          <span class="badge badge-<%= lc.status==='completed'?'gray':lc.status==='scheduled'?'neon':'gray' %>"><%= lc.status.toUpperCase() %></span>
+          <% } %>
+          <span class="badge badge-gray"><%= lc.platform?.replace('_', ' ').toUpperCase() %></span>
+          <% if (lc.course) { %><span class="badge badge-neon text-xs"><%= lc.course.title %></span><% } %>
+        </div>
+        <h1 class="font-display font-bold text-white text-3xl mb-4"><%= lc.title %></h1>
+        <% if (lc.description) { %><p class="text-gray-400 leading-relaxed mb-4"><%= lc.description %></p><% } %>
+        <div class="flex items-center gap-3 pt-4 border-t border-dark-border">
+          <img src="<%= lc.instructor?.avatar || '/images/default-avatar.png' %>" class="w-10 h-10 rounded-full border border-neon/30" onerror="this.src='/images/default-avatar.png'">
+          <div>
+            <p class="text-white font-semibold"><%= lc.instructor?.name %></p>
+            <p class="text-gray-500 text-xs">Instructor</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Recording Section -->
+      <% if (lc.recordingLink) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">📹 CLASS RECORDING</h2>
+        <%
+          let youtubeId = '';
+          if (lc.recordingLink.includes('youtube.com/watch')) {
+            youtubeId = lc.recordingLink.split('v=')[1]?.split('&')[0];
+          } else if (lc.recordingLink.includes('youtu.be/')) {
+            youtubeId = lc.recordingLink.split('youtu.be/')[1]?.split('?')[0];
+          }
+        %>
+        <% if (youtubeId) { %>
+        <div class="aspect-video rounded-lg overflow-hidden border border-dark-border mb-3">
+          <iframe src="https://www.youtube.com/embed/<%= youtubeId %>" class="w-full h-full" allowfullscreen allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"></iframe>
+        </div>
+        <% } else { %>
+        <a href="<%= lc.recordingLink %>" target="_blank" class="btn-neon text-sm px-6 py-2 inline-block">▶ Watch Recording ↗</a>
+        <% } %>
+      </div>
+      <% } %>
+
+      <!-- Notes Section -->
+      <% if (lc.notes) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">📝 CLASS NOTES</h2>
+        <div class="text-gray-300 leading-relaxed prose-dark text-sm"><%- lc.notes %></div>
+      </div>
+      <% } %>
+
+      <!-- Attachments -->
+      <% if (lc.attachments && lc.attachments.length > 0) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">📎 RESOURCES</h2>
+        <div class="space-y-2">
+          <% lc.attachments.forEach(att => { %>
+          <a href="<%= att.url %>" target="_blank" class="flex items-center gap-3 p-3 rounded bg-dark-hover hover:bg-neon/5 transition-colors">
+            <span class="text-neon"><%= att.type === 'pdf' ? '📄' : att.type === 'video' ? '🎥' : '🔗' %></span>
+            <span class="text-white text-sm"><%= att.title %></span>
+            <span class="text-gray-500 text-xs ml-auto">↗</span>
+          </a>
+          <% }) %>
+        </div>
+      </div>
+      <% } %>
+
+      <!-- Admin: Post-class update form -->
+      <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-neon font-bold text-sm tracking-widest mb-4">⚙ ADMIN: POST-CLASS UPDATE</h2>
+        <form action="/live-classes/<%= lc._id %>/post-class" method="POST" class="space-y-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">RECORDING LINK (YouTube/Drive URL)</label>
+            <input type="url" name="recordingLink" value="<%= lc.recordingLink || '' %>" placeholder="https://youtube.com/watch?v=..." class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CLASS NOTES (HTML supported)</label>
+            <textarea name="notes" rows="6" placeholder="Key takeaways, code snippets, links..." class="input-dark text-sm resize-none font-mono"><%= lc.notes || '' %></textarea>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">STATUS</label>
+            <select name="status" class="input-dark text-sm">
+              <% ['scheduled','live','completed','cancelled'].forEach(s => { %>
+              <option value="<%= s %>" <%= lc.status===s?'selected':'' %>><%= s.toUpperCase() %></option>
+              <% }) %>
+            </select>
+          </div>
+          <button type="submit" class="btn-neon-solid px-6 py-2 text-sm font-display tracking-widest">UPDATE CLASS</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <!-- Join / Register Card -->
+      <div class="card p-6">
+        <h3 class="font-display text-neon text-xs tracking-widest font-bold mb-4">CLASS INFO</h3>
+        <div class="space-y-2 text-sm mb-5">
+          <div class="flex justify-between"><span class="text-gray-500">Date</span><span class="text-white font-mono text-xs"><%= new Date(lc.scheduledAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Time</span><span class="text-white font-mono text-xs"><%= new Date(lc.scheduledAt).toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit'}) %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Duration</span><span class="text-white font-mono text-xs"><%= lc.duration %> mins</span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Platform</span><span class="text-white text-xs"><%= lc.platform?.replace('_',' ').toUpperCase() %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Registered</span><span class="text-neon font-mono"><%= lc.registeredUsers.length %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Points</span><span class="text-neon font-mono font-bold">+<%= lc.pointsReward %></span></div>
+        </div>
+
+        <% if (!currentUser) { %>
+          <a href="/auth/login" class="btn-neon-solid w-full py-2 text-sm block text-center">LOGIN TO JOIN</a>
+        <% } else if (lc.status === 'live' && lc.meetingLink) { %>
+          <a href="<%= lc.meetingLink %>" target="_blank" class="btn-neon-solid w-full py-3 text-sm block text-center font-display tracking-widest animate-pulse">🔴 JOIN NOW →</a>
+          <form action="/live-classes/<%= lc._id %>/attend" method="POST" class="mt-2">
+            <button type="submit" class="btn-neon w-full py-2 text-sm">MARK MY ATTENDANCE</button>
+          </form>
+        <% } else if (lc.status === 'scheduled') { %>
+          <% if (isRegistered) { %>
+            <div class="text-center mb-3"><span class="text-neon font-mono text-sm">✓ REGISTERED</span></div>
+            <% if (lc.meetingLink) { %>
+            <a href="<%= lc.meetingLink %>" target="_blank" class="btn-neon w-full py-2 text-sm block text-center">JOIN MEETING ↗</a>
+            <% } %>
+          <% } else { %>
+            <form action="/live-classes/<%= lc._id %>/register" method="POST">
+              <button type="submit" class="btn-neon-solid w-full py-3 text-sm font-display tracking-widest">REGISTER</button>
+            </form>
+          <% } %>
+        <% } else if (lc.status === 'completed' && lc.meetingLink) { %>
+          <p class="text-gray-500 text-sm text-center">Class has ended</p>
+        <% } %>
+      </div>
+
+      <!-- Admin controls -->
+      <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+      <div class="card p-4 space-y-2">
+        <button onclick="notifyStart('<%= lc._id %>')" class="btn-neon-solid w-full py-2 text-xs font-display tracking-widest">📢 NOTIFY STUDENTS (STARTING)</button>
+        <a href="/live-classes/<%= lc._id %>/edit" class="sidebar-link text-sm">✏️ Edit Class</a>
+        <form action="/live-classes/<%= lc._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this class?')">
+          <button type="submit" class="sidebar-link text-sm text-red-400 w-full text-left">🗑 Delete</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+
+<script>
+async function notifyStart(id) {
+  const btn = event.target;
+  btn.disabled = true;
+  btn.textContent = 'Sending...';
+  try {
+    const r = await fetch(`/live-classes/${id}/notify`, { method: 'POST', headers: { 'Content-Type': 'application/json' } });
+    const d = await r.json();
+    btn.textContent = d.success ? `✅ Sent to ${d.message}` : '❌ Failed';
+  } catch(e) {
+    btn.textContent = '❌ Error';
+  }
+  setTimeout(() => { btn.textContent = '📢 NOTIFY STUDENTS'; btn.disabled = false; }, 3000);
+}
+</script>
+<%- include('../partials/footer') %>

@@ -1,0 +1,63 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="card p-8 mb-6 text-center relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-<%= attempt.isPassed ? 'neon' : 'red-500' %> to-transparent"></div>
+    <div class="text-6xl mb-4"><%= attempt.isPassed ? '🎉' : '😔' %></div>
+    <h1 class="font-display font-bold text-white text-3xl mb-2"><%= attempt.isPassed ? 'PASSED!' : 'FAILED' %></h1>
+    <p class="text-gray-400 mb-6"><%= quiz.title %></p>
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-6">
+      <div class="card p-4 text-center">
+        <p class="text-3xl font-display font-black <%= attempt.isPassed ? 'neon-text' : 'text-red-400' %>"><%= attempt.totalScore %></p>
+        <p class="text-xs text-gray-500 font-mono">SCORE</p>
+        <p class="text-xs text-gray-600">/ <%= quiz.totalMarks %></p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-3xl font-display font-black text-white"><%= attempt.percentage %>%</p>
+        <p class="text-xs text-gray-500 font-mono">ACCURACY</p>
+      </div>
+      <div class="card p-4 text-center">
+        <p class="text-3xl font-display font-black text-neon">+<%= attempt.pointsEarned %></p>
+        <p class="text-xs text-gray-500 font-mono">POINTS</p>
+      </div>
+    </div>
+    <% if (attempt.timeTaken) { %>
+    <p class="text-gray-500 text-sm font-mono">Time: <%= Math.floor(attempt.timeTaken/60) %>m <%= attempt.timeTaken%60 %>s</p>
+    <% } %>
+    <div class="flex gap-3 justify-center mt-6">
+      <a href="/quiz" class="btn-neon text-sm px-6">ALL QUIZZES</a>
+      <a href="/quiz/<%= quiz._id %>/scoreboard" class="btn-neon text-sm px-6">SCOREBOARD</a>
+      <% if (attempt.isPassed) { %>
+      <a href="/certificates/quiz/<%= quiz._id %>/attempt/<%= attempt._id %>" class="btn-neon-solid text-sm px-6">⬇ CERTIFICATE</a>
+      <% } %>
+    </div>
+  </div>
+
+  <!-- Answer Review -->
+  <div class="space-y-4">
+    <h2 class="font-display text-white font-bold text-sm tracking-widest">ANSWER REVIEW</h2>
+    <% results.forEach((r, i) => { %>
+    <div class="card p-5 border-l-2 <%= r.isCorrect ? 'border-neon' : 'border-red-500' %>">
+      <div class="flex items-start justify-between mb-3">
+        <p class="text-white font-semibold text-sm flex-1 pr-3"><span class="text-gray-500 font-mono mr-2"><%= i+1 %>.</span><%= r.question %></p>
+        <span class="badge <%= r.isCorrect ? 'badge-neon' : 'badge-red' %> flex-shrink-0"><%= r.isCorrect ? '✓ +'+r.marksObtained : '✗ 0' %></span>
+      </div>
+      <div class="space-y-1">
+        <% r.options.forEach((opt, oIdx) => { %>
+        <div class="flex items-center gap-2 px-3 py-2 rounded text-sm
+          <%= opt.isCorrect ? 'bg-neon/10 border border-neon/30 text-neon' : oIdx===r.selectedOption && !opt.isCorrect ? 'bg-red-500/10 border border-red-500/30 text-red-400' : 'text-gray-500' %>">
+          <span class="font-mono text-xs"><%= ['A','B','C','D'][oIdx] %>.</span>
+          <%= opt.text %>
+          <% if (opt.isCorrect) { %><span class="ml-auto text-xs font-mono">CORRECT</span><% } %>
+          <% if (oIdx === r.selectedOption && !opt.isCorrect) { %><span class="ml-auto text-xs font-mono">YOUR ANSWER</span><% } %>
+        </div>
+        <% }) %>
+      </div>
+      <% if (r.explanation) { %>
+      <p class="mt-3 text-xs text-gray-400 bg-dark-hover p-2 rounded"><span class="text-yellow-400">💡 </span><%= r.explanation %></p>
+      <% } %>
+    </div>
+    <% }) %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

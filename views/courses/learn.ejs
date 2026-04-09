@@ -1,0 +1,99 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-16 flex flex-col lg:flex-row min-h-screen">
+  <!-- Sidebar: Module List -->
+  <aside class="lg:w-72 w-full bg-dark-card border-r border-dark-border lg:overflow-y-auto flex-shrink-0 hidden lg:block" id="course-sidebar">
+    <div class="p-4 border-b border-dark-border">
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ COURSE</p>
+      <p class="text-white font-bold text-sm line-clamp-2"><%= course.title %></p>
+      <div class="mt-2 progress-bar"><div class="progress-fill" style="width:<%= progress.progressPercent %>%"></div></div>
+      <p class="text-xs text-gray-500 mt-1"><%= progress.completedModules.length %>/<%= modules.length %> modules · <%= progress.progressPercent %>%</p>
+    </div>
+    <div class="py-2">
+      <% modules.forEach((mod, i) => { %>
+      <a href="/courses/<%= course._id %>/learn?module=<%= mod._id %>" class="flex items-center gap-3 px-4 py-3 hover:bg-dark-hover transition-colors <%= currentModule?._id?.toString()===mod._id.toString() ? 'bg-neon/10 border-l-2 border-neon' : '' %>">
+        <span class="text-gray-600 font-mono text-xs w-5"><%= String(i+1).padStart(2,'0') %></span>
+        <span class="text-base"><%= mod.type==='video'?'🎥':mod.type==='article'?'📄':mod.type==='quiz'?'🧠':'📌' %></span>
+        <div class="flex-1 min-w-0">
+          <p class="text-sm truncate <%= currentModule?._id?.toString()===mod._id.toString() ? 'text-neon font-semibold' : 'text-gray-300' %>"><%= mod.title %></p>
+        </div>
+        <% if (progress.completedModules.map(m=>m.toString()).includes(mod._id.toString())) { %>
+        <span class="text-neon text-xs flex-shrink-0">✓</span>
+        <% } %>
+      </a>
+      <% }) %>
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <div class="flex-1 overflow-y-auto w-full">
+    <div class="lg:hidden px-4 pt-3 pb-2 border-b border-dark-border flex items-center gap-3">
+      <button onclick="document.getElementById('course-sidebar').classList.toggle('hidden')" class="btn-neon text-xs px-3 py-1.5">☰ Modules</button>
+      <span class="text-gray-400 text-xs">Module <%= currentModule?.title ? currentModule.title.substring(0,30)+'...' : 'Select' %></span>
+    </div>
+    <div class="max-w-3xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
+      <% if (currentModule) { %>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge badge-neon"><%= currentModule.type %></span>
+          <% if (currentModule.content?.duration) { %><span class="badge badge-gray"><%= currentModule.content.duration %> min</span><% } %>
+        </div>
+        <h1 class="font-display font-bold text-white text-2xl mb-6"><%= currentModule.title %></h1>
+        <% if (currentModule.description) { %><p class="text-gray-400 mb-6"><%= currentModule.description %></p><% } %>
+
+        <!-- Video Content -->
+        <% if (currentModule.type === 'video' && currentModule.content?.videoUrl) { %>
+        <div class="aspect-video bg-black rounded-lg overflow-hidden mb-6 border border-dark-border">
+          <% if (currentModule.content.videoUrl.includes('youtube.com') || currentModule.content.videoUrl.includes('youtu.be')) { %>
+          <% const ytId = currentModule.content.videoUrl.split('v=')[1]?.split('&')[0] || currentModule.content.videoUrl.split('youtu.be/')[1]; %>
+          <iframe src="https://www.youtube.com/embed/<%= ytId %>" class="w-full h-full" allowfullscreen></iframe>
+          <% } else { %>
+          <video src="<%= currentModule.content.videoUrl %>" controls class="w-full h-full"></video>
+          <% } %>
+        </div>
+        <% } %>
+
+        <!-- Article Content -->
+        <% if (currentModule.content?.article) { %>
+        <div class="prose-dark card p-6 mb-6">
+          <%- currentModule.content.article %>
+        </div>
+        <% } %>
+
+        <!-- Resources -->
+        <% if (currentModule.content?.resources?.length) { %>
+        <div class="card p-5 mb-6">
+          <h3 class="font-display text-white text-sm font-bold tracking-widest mb-3">RESOURCES</h3>
+          <ul class="space-y-2">
+            <% currentModule.content.resources.forEach(r => { %>
+            <li><a href="<%= r.url %>" target="_blank" class="flex items-center gap-2 text-neon hover:underline text-sm">
+              <span><%= r.type==='pdf'?'📄':r.type==='video'?'🎥':'🔗' %></span>
+              <%= r.title %>
+            </a></li>
+            <% }) %>
+          </ul>
+        </div>
+        <% } %>
+
+        <!-- Complete Button -->
+        <% if (!progress.completedModules.map(m=>m.toString()).includes(currentModule._id.toString())) { %>
+        <form action="/courses/<%= course._id %>/modules/<%= currentModule._id %>/complete" method="POST">
+          <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest">MARK COMPLETE → +<%= currentModule.pointsReward %> pts</button>
+        </form>
+        <% } else { %>
+          <div class="flex items-center gap-3">
+            <span class="text-neon font-mono">✓ MODULE COMPLETED</span>
+            <% const nextIdx = modules.findIndex(m=>m._id.toString()===currentModule._id.toString())+1; %>
+            <% if (nextIdx < modules.length) { %>
+            <a href="/courses/<%= course._id %>/learn?module=<%= modules[nextIdx]._id %>" class="btn-neon text-sm">NEXT MODULE →</a>
+            <% } else if (progress.isCompleted) { %>
+            <span class="badge badge-neon">🎉 COURSE COMPLETE!</span>
+            <% } %>
+          </div>
+        <% } %>
+      <% } else { %>
+        <p class="text-gray-500">Select a module to start learning.</p>
+      <% } %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

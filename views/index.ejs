@@ -1,0 +1,163 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<main class="pt-16">
+  <!-- Hero -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(57,255,20,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.03) 1px, transparent 1px); background-size: 40px 40px;"></div>
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full" style="background: radial-gradient(circle, rgba(57,255,20,0.08) 0%, transparent 70%);"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full" style="background: radial-gradient(circle, rgba(57,255,20,0.05) 0%, transparent 70%);"></div>
+    <div class="relative text-center px-4 max-w-5xl mx-auto">
+      <div class="inline-block border border-neon/30 px-4 py-1 mb-6 text-neon text-xs font-mono tracking-widest">◈ GCETTB OFFICIAL TECH CLUB ◈</div>
+      <h1 class="font-display font-black text-white mb-6 leading-tight" style="font-size: clamp(2rem, 7vw, 6rem);">TECHNO<span class="neon-text">PHILES</span></h1>
+      <p class="text-gray-400 text-xl mb-10 max-w-2xl mx-auto leading-relaxed">Where code meets creativity. Join India's most active college tech community — learn, build, compete, and grow.</p>
+      <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center items-center">
+        <% if (!currentUser) { %>
+          <a href="/auth/register" class="btn-neon-solid text-base px-8 py-3 font-display tracking-widest">JOIN NOW</a>
+          <a href="/events" class="btn-neon text-base px-8 py-3 font-display tracking-widest">EXPLORE</a>
+        <% } else { %>
+          <a href="/dashboard" class="btn-neon-solid text-base px-8 py-3 font-display tracking-widest">DASHBOARD</a>
+          <a href="/hackathons" class="btn-neon text-base px-8 py-3 font-display tracking-widest">HACKATHONS</a>
+        <% } %>
+      </div>
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mt-10 sm:mt-20 max-w-3xl mx-auto">
+        <% [['500+','Members'],['50+','Events'],['20+','Hackathons'],['100+','Courses']].forEach(([n,l]) => { %>
+        <div class="card p-5 text-center"><p class="text-3xl font-display font-black neon-text"><%= n %></p><p class="text-gray-500 text-xs mt-1 tracking-widest uppercase font-mono"><%= l %></p></div>
+        <% }) %>
+      </div>
+    </div>
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600 text-xs font-mono">
+      <span>SCROLL</span><div class="w-px h-12 bg-gradient-to-b from-neon/50 to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- Upcoming Events -->
+  <% if (upcomingEvents.length > 0) { %>
+  <section class="py-20 px-4 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-10">
+      <div><p class="text-neon font-mono text-xs tracking-widest mb-2">◈ UPCOMING</p><h2 class="font-display font-bold text-white text-3xl">EVENTS</h2></div>
+      <a href="/events" class="btn-neon text-sm">VIEW ALL</a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:gap-6">
+      <% upcomingEvents.forEach(event => { %>
+      <a href="/events/<%= event._id %>" class="card p-5 block group">
+        <div class="flex items-start justify-between mb-3">
+          <span class="badge badge-neon text-xs"><%= event.type %></span>
+          <span class="text-xs text-gray-500 font-mono"><%= new Date(event.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+        </div>
+        <h3 class="text-white font-semibold text-lg mb-2 group-hover:text-neon transition-colors"><%= event.title %></h3>
+        <p class="text-gray-500 text-sm mb-4"><%= event.description.substring(0,100) %>...</p>
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span>👥 <%= event.participants.length %>/<%= event.maxParticipants %></span>
+          <span class="text-neon font-mono">+<%= event.pointsReward %> pts</span>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- Hackathons -->
+  <% if (hackathons.length > 0) { %>
+  <section class="py-20 px-4 bg-dark-card">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-10">
+        <div><p class="text-neon font-mono text-xs tracking-widest mb-2">◈ BUILD & WIN</p><h2 class="font-display font-bold text-white text-3xl">HACKATHONS</h2></div>
+        <a href="/hackathons" class="btn-neon text-sm">VIEW ALL</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <% hackathons.forEach(h => { %>
+        <a href="/hackathons/<%= h._id %>" class="card p-6 block group">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-10 h-10 bg-neon/10 border border-neon/30 rounded flex items-center justify-center"><span class="text-neon text-lg">⚡</span></div>
+            <span class="badge badge-neon"><%= h.status.replace('_',' ') %></span>
+          </div>
+          <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors"><%= h.title %></h3>
+          <% if (h.tagline) { %><p class="text-gray-500 text-sm mb-4"><%= h.tagline %></p><% } %>
+          <div class="flex justify-between text-xs text-gray-600 font-mono pt-3 border-t border-dark-border">
+            <span>🗓 <%= new Date(h.hackathonStart).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+            <span class="text-neon">+<%= h.pointsReward %> pts</span>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- Featured Projects -->
+  <% if (typeof featuredProjects !== 'undefined' && featuredProjects.length > 0) { %>
+  <section class="py-20 px-4 bg-dark-card">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-10">
+        <div><p class="text-neon font-mono text-xs tracking-widest mb-2">◈ COMMUNITY WORK</p><h2 class="font-display font-bold text-white text-3xl">FEATURED PROJECTS</h2></div>
+        <a href="/projects" class="btn-neon text-sm">VIEW ALL</a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <% featuredProjects.forEach(p => { %>
+        <a href="/projects/<%= p._id %>" class="card group block overflow-hidden">
+          <div class="w-full h-36 overflow-hidden bg-dark-hover flex items-center justify-center text-4xl">
+            <% if (p.thumbnail && !p.thumbnail.includes('project-default')) { %>
+            <img src="<%= p.thumbnail %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform" onerror="this.parentElement.innerHTML='💡'">
+            <% } else { %>
+            <%= p.category==='web'?'🌐':p.category==='mobile'?'📱':p.category==='ai_ml'?'🤖':'💡' %>
+            <% } %>
+          </div>
+          <div class="p-4">
+            <h3 class="text-white font-bold group-hover:text-neon transition-colors"><%= p.title %></h3>
+            <p class="text-gray-500 text-sm mt-1 line-clamp-2"><%= p.description %></p>
+            <div class="flex items-center justify-between mt-3 text-xs text-gray-600 font-mono">
+              <span><%= p.techStack?.slice(0,2).join(' · ') %></span>
+              <span>❤ <%= p.likes %></span>
+            </div>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- Quick Links Band -->
+  <section class="py-10 px-4 border-y border-dark-border">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-wrap justify-center gap-4">
+        <% [['📅','Events','/events'],['⚡','Hackathons','/hackathons'],['🔴','Live Classes','/live-classes'],['📚','Courses','/courses'],['🗺','Roadmaps','/roadmaps'],['📅','Calendar','/calendar'],['💡','Projects','/projects'],['👥','Team','/members']].forEach(([icon,label,href]) => { %>
+        <a href="<%= href %>" class="flex items-center gap-2 px-4 py-2 card hover:border-neon/30 text-sm text-gray-400 hover:text-neon transition-all">
+          <span><%= icon %></span><span class="font-semibold"><%= label %></span>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- Features Grid -->
+  <section class="py-20 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-12">
+      <p class="text-neon font-mono text-xs tracking-widest mb-2">◈ WHAT WE OFFER</p>
+      <h2 class="font-display font-bold text-white text-3xl">PLATFORM FEATURES</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 sm:gap-6">
+      <% [['📚','LMS & Courses','Self-paced learning with modules, video content, and progress tracking'],['⚡','Hackathons','Team registration, submissions, judge scoring, and leaderboards'],['🧠','Quiz System','MCQ quizzes with timers, auto-evaluation and scoreboards'],['📍','QR Attendance','Scan QR to mark attendance and earn points automatically'],['🏆','Leaderboard','Points system with badges and rankings across all activities'],['🗺','Roadmaps','Structured learning paths for Web Dev, DSA, AI/ML and more']].forEach(([icon, title, desc]) => { %>
+      <div class="card p-6 group"><div class="text-3xl mb-4"><%= icon %></div><h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display"><%= title %></h3><p class="text-gray-500 text-sm leading-relaxed"><%= desc %></p></div>
+      <% }) %>
+    </div>
+  </section>
+
+  <!-- CTA -->
+  <section class="py-20 px-4">
+    <div class="max-w-3xl mx-auto text-center card p-12 relative overflow-hidden">
+      <div class="absolute inset-0" style="background: radial-gradient(circle at center, rgba(57,255,20,0.05) 0%, transparent 70%);"></div>
+      <div class="relative">
+        <h2 class="font-display font-black text-white text-4xl mb-4">READY TO <span class="neon-text">BUILD</span>?</h2>
+        <p class="text-gray-400 mb-8">Join Technophiles and be part of a community that builds, learns and grows together.</p>
+        <% if (!currentUser) { %>
+          <a href="/auth/register" class="btn-neon-solid text-base px-10 py-3 font-display tracking-widest">GET STARTED FREE</a>
+        <% } else { %>
+          <a href="/courses" class="btn-neon-solid text-base px-10 py-3 font-display tracking-widest">EXPLORE COURSES</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+</main>
+<%- include('partials/footer') %>

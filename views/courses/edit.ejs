@@ -1,0 +1,200 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <a href="/courses/<%= course._id %>" class="text-gray-500 text-sm hover:text-neon font-mono">← VIEW COURSE</a>
+      <h1 class="font-display font-bold text-white text-2xl mt-1">EDIT: <%= course.title.toUpperCase() %></h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="/courses/<%= course._id %>" class="btn-neon text-sm">PREVIEW</a>
+      <form action="/courses/<%= course._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this course and all its modules?')">
+        <button type="submit" class="btn-neon text-sm border-red-500/40 text-red-400">DELETE COURSE</button>
+      </form>
+    </div>
+  </div>
+
+  <% if (typeof query !== 'undefined' && query?.msg) { %>
+  <div class="bg-neon/10 border border-neon/30 text-neon px-4 py-3 rounded text-sm mb-6">
+    ✅ <%= query.msg === 'updated' ? 'Course updated!' : query.msg === 'module_added' ? 'Module added!' : query.msg === 'module_updated' ? 'Module updated!' : query.msg === 'module_deleted' ? 'Module deleted.' : query.msg === 'event_linked' ? 'Event linked!' : query.msg === 'liveclass_linked' ? 'Live class linked!' : 'Done!' %>
+  </div>
+  <% } %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- Course Details Form -->
+    <div class="card p-6">
+      <h2 class="font-display text-neon text-xs tracking-widest font-bold mb-5">COURSE DETAILS</h2>
+      <form action="/courses/<%= course._id %>?_method=PUT" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-mono">TITLE *</label>
+          <input type="text" name="title" required value="<%= course.title %>" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-mono">DESCRIPTION *</label>
+          <textarea name="description" required rows="3" class="input-dark text-sm resize-none"><%= course.description %></textarea>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">CATEGORY</label>
+            <select name="category" class="input-dark text-sm">
+              <% ['web_dev','dsa','ai_ml','cybersecurity','mobile','cloud','blockchain','other'].forEach(c => { %>
+              <option value="<%= c %>" <%= course.category===c?'selected':'' %>><%= c.replace(/_/g,' ').toUpperCase() %></option>
+              <% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">LEVEL</label>
+            <select name="level" class="input-dark text-sm">
+              <% ['beginner','intermediate','advanced'].forEach(l => { %><option value="<%= l %>" <%= course.level===l?'selected':'' %>><%= l %></option><% }) %>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">STATUS</label>
+            <select name="status" class="input-dark text-sm">
+              <% ['draft','published','archived'].forEach(s => { %><option value="<%= s %>" <%= course.status===s?'selected':'' %>><%= s %></option><% }) %>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">ACCESS</label>
+            <select name="accessLevel" class="input-dark text-sm">
+              <option value="internal_only" <%= course.accessLevel==='internal_only'?'selected':'' %>>Internal Only</option>
+              <option value="all" <%= course.accessLevel==='all'?'selected':'' %>>All Users</option>
+            </select>
+          </div>
+        </div>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">DURATION (hrs)</label>
+            <input type="number" name="estimatedDuration" value="<%= course.estimatedDuration||0 %>" step="0.5" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono">POINTS REWARD</label>
+            <input type="number" name="pointsReward" value="<%= course.pointsReward||50 %>" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-mono">TAGS (comma separated)</label>
+          <input type="text" name="tags" value="<%= course.tags?.join(',')||'' %>" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-mono">LEARNING OUTCOMES (one per line)</label>
+          <textarea name="learningOutcomes" rows="3" class="input-dark text-sm resize-none"><%= course.learningOutcomes?.join('\n')||'' %></textarea>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-1 font-mono">PREREQUISITES (one per line)</label>
+          <textarea name="prerequisites" rows="2" class="input-dark text-sm resize-none"><%= course.prerequisites?.join('\n')||'' %></textarea>
+        </div>
+        <button type="submit" class="btn-neon-solid w-full py-2 text-sm font-display tracking-widest">SAVE COURSE DETAILS</button>
+      </form>
+    </div>
+
+    <!-- Link Events & Live Classes -->
+    <div class="space-y-4">
+      <!-- Link Event -->
+      <div class="card p-5">
+        <h2 class="font-display text-neon text-xs tracking-widest font-bold mb-4">LINK EVENTS</h2>
+        <form action="/courses/<%= course._id %>/link-event" method="POST" class="flex gap-2 mb-3">
+          <select name="eventId" class="input-dark text-sm flex-1">
+            <option value="">Select event to link...</option>
+            <% events.forEach(e => { %>
+            <option value="<%= e._id %>"><%= e.title %> (<%= new Date(e.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %>)</option>
+            <% }) %>
+          </select>
+          <button type="submit" class="btn-neon-solid text-xs px-4 whitespace-nowrap">LINK</button>
+        </form>
+        <% if (course.linkedEvents && course.linkedEvents.length > 0) { %>
+        <div class="space-y-1">
+          <p class="text-xs text-gray-500 font-mono mb-2">LINKED EVENTS</p>
+          <% course.linkedEvents.forEach(ev => { %>
+          <% if (typeof ev === 'object' && ev.title) { %>
+          <div class="flex items-center justify-between p-2 rounded bg-dark-hover text-sm">
+            <span class="text-white">📅 <%= ev.title %></span>
+            <a href="/events/<%= ev._id %>" target="_blank" class="text-neon text-xs hover:underline">VIEW →</a>
+          </div>
+          <% } %>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Link Live Classes -->
+      <div class="card p-5">
+        <h2 class="font-display text-neon text-xs tracking-widest font-bold mb-4">LINK LIVE CLASSES</h2>
+        <form action="/courses/<%= course._id %>/link-liveclass" method="POST" class="flex gap-2 mb-3">
+          <select name="liveClassId" class="input-dark text-sm flex-1">
+            <option value="">Select live class to link...</option>
+            <% liveClasses.forEach(lc => { %>
+            <option value="<%= lc._id %>"><%= lc.title %> (<%= new Date(lc.scheduledAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %>)</option>
+            <% }) %>
+          </select>
+          <button type="submit" class="btn-neon-solid text-xs px-4 whitespace-nowrap">LINK</button>
+        </form>
+        <% if (course.linkedLiveClasses && course.linkedLiveClasses.length > 0) { %>
+        <div class="space-y-1">
+          <p class="text-xs text-gray-500 font-mono mb-2">LINKED LIVE CLASSES</p>
+          <% course.linkedLiveClasses.forEach(lc => { %>
+          <% if (typeof lc === 'object' && lc.title) { %>
+          <div class="flex items-center justify-between p-2 rounded bg-dark-hover text-sm">
+            <span class="text-white">🔴 <%= lc.title %></span>
+            <a href="/live-classes/<%= lc._id %>" target="_blank" class="text-neon text-xs hover:underline">VIEW →</a>
+          </div>
+          <% } %>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Stats -->
+      <div class="card p-5">
+        <h2 class="font-display text-neon text-xs tracking-widest font-bold mb-3">COURSE STATS</h2>
+        <div class="space-y-2 text-sm">
+          <div class="flex justify-between"><span class="text-gray-500">Enrolled</span><span class="text-white font-mono"><%= course.enrolledCount || 0 %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Modules</span><span class="text-neon font-mono"><%= modules.length %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Status</span><span class="badge badge-<%= course.status==='published'?'neon':'gray' %>"><%= course.status %></span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modules Manager -->
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">COURSE MODULES (<%= modules.length %>)</h2>
+      <a href="/courses/<%= course._id %>/modules/add" class="btn-neon-solid text-xs px-5 py-2">+ ADD MODULE</a>
+    </div>
+    <% if (modules.length === 0) { %>
+    <div class="text-center py-10">
+      <p class="text-gray-500 mb-4 text-sm">No modules yet. Add your first module to get started.</p>
+      <a href="/courses/<%= course._id %>/modules/add" class="btn-neon-solid text-sm px-8 py-2">ADD FIRST MODULE</a>
+    </div>
+    <% } else { %>
+    <div class="space-y-3" id="modules-list">
+      <% modules.forEach((mod, i) => { %>
+      <div class="flex items-center gap-4 p-4 rounded bg-dark-hover border border-dark-border hover:border-neon/20 transition-all group">
+        <span class="text-gray-600 font-mono text-xs w-6 flex-shrink-0"><%= String(i+1).padStart(2,'0') %></span>
+        <span class="text-xl flex-shrink-0"><%= mod.type==='video'?'🎥':mod.type==='article'?'📄':mod.type==='quiz'?'🧠':mod.type==='live'?'🔴':'📌' %></span>
+        <div class="flex-1 min-w-0">
+          <p class="text-white font-semibold text-sm"><%= mod.title %></p>
+          <div class="flex items-center gap-2 mt-1 flex-wrap">
+            <span class="badge badge-gray text-xs"><%= mod.type %></span>
+            <% if (mod.content?.duration) { %><span class="text-gray-500 text-xs font-mono"><%= mod.content.duration %>min</span><% } %>
+            <% if (mod.content?.videoUrl) { %><span class="text-neon text-xs font-mono">▶ Video</span><% } %>
+            <% if (mod.isPreview) { %><span class="badge badge-neon text-xs">FREE PREVIEW</span><% } %>
+          </div>
+        </div>
+        <span class="text-neon text-xs font-mono flex-shrink-0">+<%= mod.pointsReward %>pts</span>
+        <div class="flex gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+          <a href="/courses/<%= course._id %>/modules/<%= mod._id %>/edit" class="btn-neon text-xs px-3 py-1">EDIT</a>
+          <form action="/courses/<%= course._id %>/modules/<%= mod._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete module?')">
+            <button type="submit" class="text-xs font-mono text-red-400 hover:text-red-300 px-2 py-1">DEL</button>
+          </form>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

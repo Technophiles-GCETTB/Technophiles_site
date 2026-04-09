@@ -1,0 +1,66 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-16 min-h-screen flex items-start sm:items-center justify-center px-3 sm:px-4 py-6">
+  <div class="w-full max-w-lg">
+    <div class="card p-8 relative overflow-hidden">
+      <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+      <div class="text-center mb-8">
+        <h1 class="font-display font-bold text-white text-2xl tracking-widest">JOIN TECHNOPHILES</h1>
+        <p class="text-gray-500 text-sm mt-1">Create your account to get started</p>
+      </div>
+      <% if (error) { %>
+      <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ <%= error %></div>
+      <% } %>
+      <form action="/auth/register" method="POST" class="space-y-4">
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">FULL NAME *</label>
+            <input type="text" name="name" required placeholder="John Doe" value="<%= typeof formData !== 'undefined' ? formData.name||'' : '' %>" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">EMAIL *</label>
+            <input type="email" name="email" required placeholder="you@gcettb.ac.in" value="<%= typeof formData !== 'undefined' ? formData.email||'' : '' %>" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">PASSWORD *</label>
+            <input type="password" name="password" required placeholder="Min 6 characters" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CONFIRM PASSWORD *</label>
+            <input type="password" name="confirmPassword" required placeholder="Repeat password" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">COLLEGE</label>
+            <input type="text" name="college" placeholder="GCETTB" value="<%= typeof formData !== 'undefined' ? formData.college||'' : '' %>" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">BRANCH</label>
+            <input type="text" name="branch" placeholder="CSE / ECE / ME..." value="<%= typeof formData !== 'undefined' ? formData.branch||'' : '' %>" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">YEAR OF STUDY</label>
+          <select name="year" class="input-dark text-sm">
+            <option value="">Select Year</option>
+            <% for(let i=1;i<=4;i++) { %><option value="<%= i %>" <%= typeof formData !== 'undefined' && formData.year==i ? 'selected' : '' %>>Year <%= i %></option><% } %>
+          </select>
+        </div>
+        <!-- Role info box -->
+        <div class="p-3 bg-neon/5 border border-neon/20 rounded text-xs font-mono text-gray-500">
+          <p class="text-neon mb-1">AUTO ROLE ASSIGNMENT</p>
+          <p><span class="text-neon">@gcettb.ac.in</span> → Internal (full access)</p>
+          <p>Other email → External (events & hackathons only)</p>
+        </div>
+        <button type="submit" class="btn-neon-solid w-full py-3 font-display tracking-widest text-sm mt-2">CREATE ACCOUNT</button>
+      </form>
+      <div class="mt-6 pt-6 border-t border-dark-border text-center">
+        <p class="text-gray-500 text-sm">Already have an account? <a href="/auth/login" class="text-neon hover:underline font-semibold">Sign In</a></p>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>
