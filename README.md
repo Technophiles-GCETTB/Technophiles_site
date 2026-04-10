@@ -107,7 +107,7 @@ technophiles/
 ### 2. Clone & Install
 
 ```bash
-git clone https://github.com/your-repo/technophiles.git
+git clone https://github.com/Technophiles-GCETTB/technophiles.git
 cd technophiles
 npm install
 ```
