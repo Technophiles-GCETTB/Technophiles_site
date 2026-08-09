@@ -1,0 +1,75 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ LIVE LEARNING</p>
+      <h1 class="font-display font-bold text-white text-2xl">LIVE CLASSES</h1>
+    </div>
+    <% if (currentUser && ['superadmin','admin','event_admin'].includes(currentUser.role)) { %>
+    <a href="/live-classes/create" class="btn-neon-solid text-sm">+ SCHEDULE CLASS</a>
+    <% } %>
+  </div>
+
+  <!-- Upcoming -->
+  <% if (upcoming.length > 0) { %>
+  <div class="mb-10">
+    <h2 class="font-display text-neon text-xs tracking-widest mb-4">UPCOMING & LIVE</h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <% upcoming.forEach(lc => { %>
+      <a href="/live-classes/<%= lc._id %>" class="card p-5 block group relative overflow-hidden">
+        <% if (lc.status === 'live') { %>
+        <div class="absolute top-3 right-3 flex items-center gap-1.5">
+          <span class="w-2 h-2 rounded-full bg-red-500 animate-pulse"></span>
+          <span class="text-red-400 text-xs font-mono">LIVE</span>
+        </div>
+        <% } %>
+        <div class="flex items-center gap-2 mb-3">
+          <span class="badge <%= lc.platform==='google_meet'?'badge-blue':lc.platform==='zoom'?'badge-purple':'badge-gray' %> text-xs">
+            <%= lc.platform === 'google_meet' ? '📹 Google Meet' : lc.platform === 'zoom' ? '🎥 Zoom' : '🖥 ' + lc.platform %>
+          </span>
+          <% if (lc.status === 'scheduled') { %><span class="badge badge-gray text-xs">UPCOMING</span><% } %>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors"><%= lc.title %></h3>
+        <% if (lc.description) { %><p class="text-gray-500 text-sm mb-3 line-clamp-2"><%= lc.description %></p><% } %>
+        <div class="flex items-center gap-2 mb-3">
+          <img src="<%= lc.instructor?.avatar || '/images/default-avatar.png' %>" class="w-6 h-6 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+          <span class="text-gray-400 text-xs"><%= lc.instructor?.name %></span>
+        </div>
+        <div class="pt-3 border-t border-dark-border flex justify-between text-xs text-gray-500 font-mono">
+          <span>🗓 <%= new Date(lc.scheduledAt).toLocaleDateString('en-IN', {day:'numeric',month:'short'}) %></span>
+          <span>⏰ <%= new Date(lc.scheduledAt).toLocaleTimeString('en-IN', {hour:'2-digit',minute:'2-digit'}) %></span>
+          <span class="text-neon">+<%= lc.pointsReward %> pts</span>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  </div>
+  <% } %>
+
+  <!-- Past / Recordings -->
+  <div>
+    <h2 class="font-display text-neon text-xs tracking-widest mb-4">RECORDINGS & NOTES</h2>
+    <% if (past.length === 0) { %>
+    <div class="card p-10 text-center"><p class="text-gray-500">No past classes yet</p></div>
+    <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <% past.forEach(lc => { %>
+      <a href="/live-classes/<%= lc._id %>" class="card p-5 block group opacity-80 hover:opacity-100 transition-opacity">
+        <div class="flex items-center gap-2 mb-3">
+          <% if (lc.recordingLink) { %><span class="badge badge-neon text-xs">📹 RECORDING</span><% } %>
+          <% if (lc.notes) { %><span class="badge badge-gray text-xs">📝 NOTES</span><% } %>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-neon transition-colors"><%= lc.title %></h3>
+        <div class="flex items-center gap-2 mb-2">
+          <img src="<%= lc.instructor?.avatar || '/images/default-avatar.png' %>" class="w-5 h-5 rounded-full" onerror="this.src='/images/default-avatar.png'">
+          <span class="text-gray-500 text-xs"><%= lc.instructor?.name %></span>
+        </div>
+        <p class="text-xs text-gray-600 font-mono"><%= new Date(lc.scheduledAt).toLocaleDateString('en-IN', {day:'numeric',month:'short',year:'numeric'}) %></p>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

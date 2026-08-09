@@ -1,0 +1,370 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-6xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">CERTIFICATE TEMPLATES</h1>
+    </div>
+    <a href="/admin" class="btn-neon text-sm">← DASHBOARD</a>
+  </div>
+
+  <% if (query?.msg === 'created') { %><div class="bg-neon/10 border border-neon/30 text-neon px-4 py-3 rounded text-sm mb-6">✅ Template saved!</div><% } %>
+  <% if (query?.msg === 'deleted') { %><div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">🗑 Template deleted.</div><% } %>
+  <% if (query?.error === 'missing') { %><div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ Name and type are required.</div><% } %>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+
+    <!-- ─── Add Template Form ──────────────────────────────────────────────── -->
+    <div class="card p-6">
+      <h2 class="font-display text-neon text-xs font-bold tracking-widest mb-5">UPLOAD CUSTOM TEMPLATE</h2>
+
+      <!-- Drive URL how-to -->
+      <div class="p-3 bg-dark-hover border border-dark-border rounded text-xs text-gray-400 mb-5 leading-relaxed">
+        <p class="text-white font-semibold mb-1">📌 How to get a Google Drive direct image URL:</p>
+        <ol class="space-y-0.5 list-decimal list-inside text-gray-400">
+          <li>Design your cert in Canva/Adobe Express (A4 landscape, 1122×793px)</li>
+          <li>Export as <span class="text-neon">PNG</span> — leave name/event areas blank</li>
+          <li>Upload to Google Drive → Share → "Anyone with the link" viewer</li>
+          <li>Copy share URL: <code class="text-gray-300">drive.google.com/file/d/<span class="text-neon">FILE_ID</span>/view</code></li>
+          <li>Convert: <code class="text-neon">drive.google.com/uc?export=view&id=FILE_ID</code></li>
+        </ol>
+        <p class="mt-2 text-gray-500">Also works with Imgur, Cloudinary, or any direct image URL ending in .png/.jpg</p>
+      </div>
+
+      <form action="/certificates/templates" method="POST" class="space-y-4" id="tmpl-form">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TEMPLATE NAME *</label>
+          <input type="text" name="name" required placeholder="Gold Award Certificate" class="input-dark text-sm" />
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CERTIFICATE TYPE *</label>
+          <select name="type" class="input-dark text-sm" onchange="updateTypeInfo(this.value)">
+            <option value="participation">🎟 Event Participation</option>
+            <option value="completion">📚 Course Completion</option>
+            <option value="winner_1st">🥇 Hackathon 1st Place</option>
+            <option value="winner_2nd">🥈 Hackathon 2nd Place</option>
+            <option value="winner_3rd">🥉 Hackathon 3rd Place</option>
+            <option value="custom">✨ Custom / General</option>
+          </select>
+          <p id="type-info" class="text-xs text-gray-500 mt-1">Used for: event attendance certificates</p>
+        </div>
+
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">BACKGROUND IMAGE URL (Google Drive / Imgur)</label>
+          <input type="url" name="backgroundImage" id="bg-image-input"
+            placeholder="https://drive.google.com/uc?export=view&id=..."
+            class="input-dark text-sm"
+            oninput="updatePreview(this.value)" />
+          <p class="text-xs text-gray-600 mt-1">Paste after converting Google Drive URL — see guide above</p>
+        </div>
+
+        <!-- Assign to specific entity -->
+        <div class="border border-dark-border rounded p-4">
+          <p class="text-xs text-gray-400 font-mono tracking-wider mb-3">ASSIGN TO (optional)</p>
+          <p class="text-xs text-gray-500 mb-3">Link this template to a specific event, quiz, or hackathon — or leave as "All" to apply globally for this certificate type.</p>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+            <div>
+              <label class="block text-xs text-gray-500 mb-1 font-mono">APPLY TO TYPE</label>
+              <select name="applyToType" id="apply-type-select" onchange="toggleEntityId(this.value)" class="input-dark text-sm">
+                <option value="none">None (manual use only)</option>
+                <option value="all">All (for this cert type)</option>
+                <option value="event">Specific Event</option>
+                <option value="hackathon">Specific Hackathon</option>
+                <option value="quiz">Specific Quiz</option>
+                <option value="course">Specific Course</option>
+              </select>
+            </div>
+            <div id="entity-id-field" class="hidden">
+              <label class="block text-xs text-gray-500 mb-1 font-mono">ENTITY ID <span class="text-gray-600">(MongoDB _id)</span></label>
+              <input type="text" name="applyToId" placeholder="Copy from URL e.g. /events/64abc..." class="input-dark text-sm font-mono" />
+              <p class="text-xs text-gray-600 mt-1">Find it in the URL when viewing the event/hackathon/quiz</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Text overlay positions -->
+        <div class="border border-dark-border rounded p-4">
+          <div class="flex items-center justify-between mb-3">
+            <p class="text-xs text-gray-400 font-mono tracking-wider">TEXT OVERLAY POSITIONS <span class="text-gray-600">(% from top-left)</span></p>
+            <button type="button" onclick="document.getElementById('overlay-help').classList.toggle('hidden')" class="text-xs text-neon hover:underline">?</button>
+          </div>
+          <div id="overlay-help" class="hidden mb-3 p-2 bg-neon/5 rounded text-xs text-gray-400">
+            Set where text appears on your design. X=0 is left edge, X=100 is right. Y=0 is top, Y=100 is bottom. Preview updates in real-time.
+          </div>
+          <div class="space-y-3">
+            <% const overlayFields = [
+              ['participant_name', 'Participant Name', '50', '45', '28', '#ffffff', 'center', '700'],
+              ['event_title', 'Event / Award Title', '50', '58', '16', '#aaaaaa', 'center', '400'],
+              ['date', 'Date', '50', '68', '13', '#888888', 'center', '400'],
+            ]; %>
+            <% overlayFields.forEach(([key, label, defX, defY, defSize, defColor, defAlign, defWeight]) => { %>
+            <div class="p-3 bg-dark-hover rounded">
+              <p class="text-xs text-gray-400 font-mono mb-2"><%= label.toUpperCase() %></p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">X %</label>
+                  <input type="number" name="field_x_<%= key %>" value="<%= defX %>" min="0" max="100" class="input-dark text-xs" oninput="renderOverlay()" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">Y %</label>
+                  <input type="number" name="field_y_<%= key %>" value="<%= defY %>" min="0" max="100" class="input-dark text-xs" oninput="renderOverlay()" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">Size px</label>
+                  <input type="number" name="field_size_<%= key %>" value="<%= defSize %>" min="8" max="80" class="input-dark text-xs" oninput="renderOverlay()" />
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">Color</label>
+                  <input type="color" name="field_color_<%= key %>" value="<%= defColor %>" class="input-dark h-8 p-0.5 cursor-pointer" oninput="renderOverlay()" />
+                </div>
+              </div>
+              <div class="grid grid-cols-2 gap-2 mt-2">
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">Align</label>
+                  <select name="field_align_<%= key %>" class="input-dark text-xs" onchange="renderOverlay()">
+                    <option value="center" <%= defAlign==='center'?'selected':'' %>>Center</option>
+                    <option value="left" <%= defAlign==='left'?'selected':'' %>>Left</option>
+                    <option value="right" <%= defAlign==='right'?'selected':'' %>>Right</option>
+                  </select>
+                </div>
+                <div>
+                  <label class="text-xs text-gray-600 font-mono">Weight</label>
+                  <select name="field_weight_<%= key %>" class="input-dark text-xs" onchange="renderOverlay()">
+                    <option value="400" <%= defWeight==='400'?'selected':'' %>>Normal</option>
+                    <option value="600">Semibold</option>
+                    <option value="700" <%= defWeight==='700'?'selected':'' %>>Bold</option>
+                    <option value="900">Black</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+            <% }) %>
+          </div>
+        </div>
+
+        <button type="submit" class="btn-neon-solid w-full py-2.5 text-sm font-display tracking-widest">SAVE TEMPLATE</button>
+      </form>
+    </div>
+
+    <!-- ─── Live Preview ──────────────────────────────────────────────────── -->
+    <div class="card p-6">
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display text-neon text-xs font-bold tracking-widest">LIVE PREVIEW</h2>
+        <button onclick="renderOverlay()" class="btn-neon text-xs px-4 py-1.5">🔄 REFRESH</button>
+      </div>
+
+      <!-- Canvas preview area -->
+      <div class="relative w-full bg-dark-border rounded overflow-hidden" style="aspect-ratio: 1.414;" id="preview-container">
+        <!-- Background image -->
+        <img id="preview-bg" src="" alt="" class="absolute inset-0 w-full h-full object-cover hidden" onerror="this.classList.add('hidden')">
+        <!-- Default placeholder -->
+        <div id="preview-placeholder" class="absolute inset-0 flex items-center justify-center flex-col gap-2">
+          <div class="text-4xl">📄</div>
+          <p class="text-gray-500 text-xs font-mono text-center px-4">Paste a background image URL<br>to see the preview</p>
+        </div>
+        <!-- SVG overlay for text positions -->
+        <svg id="preview-svg" class="absolute inset-0 w-full h-full" viewBox="0 0 1122 793" preserveAspectRatio="xMidYMid meet">
+          <!-- Overlay texts will be rendered here via JS -->
+        </svg>
+      </div>
+
+      <p class="text-xs text-gray-500 mt-3 text-center font-mono">Sample text shown for positioning. Actual names will be filled at generation time.</p>
+
+      <!-- Auto-generated certs info -->
+      <div class="mt-5 border-t border-dark-border pt-4">
+        <p class="text-xs text-neon font-mono tracking-wider mb-3">CERTIFICATE TYPES & STATUS</p>
+        <div class="space-y-2">
+          <% const certTypes = [
+            ['participation', '📅', 'Event Participation', '/certificates/event/:id'],
+            ['completion', '📚', 'Course Completion', '/certificates/course/:id'],
+            ['completion', '🧠', 'Quiz Pass', '/certificates/quiz/:id/attempt/:aid'],
+            ['winner_1st', '🥇', 'Hackathon 1st Place', '/certificates/hackathon/:id/winner/1'],
+            ['winner_2nd', '🥈', 'Hackathon 2nd Place', '/certificates/hackathon/:id/winner/2'],
+            ['winner_3rd', '🥉', 'Hackathon 3rd Place', '/certificates/hackathon/:id/winner/3'],
+            ['participation', '⚡', 'Hackathon Participation', '/certificates/hackathon/:id/participation'],
+          ]; %>
+          <% certTypes.forEach(([type, icon, name, path]) => { %>
+          <%
+            const customTmpl = templates.find(t => t.type === type &&
+              (t.appliesTo?.some(a => a.entityType === 'all') || !t.appliesTo?.length));
+          %>
+          <div class="flex items-center justify-between p-2 rounded bg-dark-hover text-xs gap-2">
+            <span class="text-gray-300 flex-shrink-0"><%= icon %> <%= name %></span>
+            <% if (customTmpl) { %>
+            <span class="badge badge-neon text-xs flex-shrink-0">✓ Custom: <%= customTmpl.name %></span>
+            <% } else { %>
+            <span class="badge badge-gray text-xs flex-shrink-0">Default design</span>
+            <% } %>
+          </div>
+          <% }) %>
+        </div>
+        <p class="text-xs text-gray-600 mt-3">Save a template with type matching + "All" assignment to override the default auto-generated design.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── Saved Templates ──────────────────────────────────────────────────── -->
+  <div class="card p-6">
+    <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">SAVED TEMPLATES (<%= templates.length %>)</h2>
+    <% if (templates.length === 0) { %>
+    <div class="text-center py-10">
+      <p class="text-4xl mb-3">📜</p>
+      <p class="text-gray-500 text-sm">No custom templates yet. The default Technophiles design is used for all certificates.</p>
+    </div>
+    <% } else { %>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+      <% templates.forEach(tmpl => { %>
+      <div class="card p-4 group">
+        <!-- Template thumbnail -->
+        <div class="w-full rounded overflow-hidden mb-3 bg-dark-border relative" style="aspect-ratio:1.414;">
+          <% if (tmpl.backgroundImage) { %>
+          <img src="<%= tmpl.backgroundImage %>" alt="<%= tmpl.name %>" class="w-full h-full object-cover" onerror="this.parentElement.classList.add('flex','items-center','justify-center'); this.remove();">
+          <% } else { %>
+          <div class="w-full h-full flex items-center justify-center text-3xl">📜</div>
+          <% } %>
+          <!-- Type badge overlay -->
+          <span class="absolute top-2 right-2 badge badge-neon text-xs">
+            <%= tmpl.type === 'participation' ? '🎟' : tmpl.type === 'completion' ? '📚' : tmpl.type.startsWith('winner') ? '🏆' : '✨' %>
+            <%= tmpl.type.replace(/_/g,' ').toUpperCase() %>
+          </span>
+        </div>
+        <h3 class="text-white font-bold text-sm mb-1"><%= tmpl.name %></h3>
+        <p class="text-gray-500 text-xs font-mono mb-1">
+          Added by <%= tmpl.createdBy?.name || 'Admin' %> ·
+          <%= new Date(tmpl.createdAt).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %>
+        </p>
+        <% if (tmpl.appliesTo && tmpl.appliesTo.length > 0) { %>
+        <div class="flex flex-wrap gap-1 mb-3">
+          <% tmpl.appliesTo.forEach(a => { %>
+          <span class="badge badge-blue text-xs">📌 <%= a.entityType === 'all' ? 'All ' + tmpl.type : a.entityType + (a.entityId ? ' (specific)' : 's') %></span>
+          <% }) %>
+        </div>
+        <% } else { %>
+        <p class="text-gray-600 text-xs mb-3 font-mono">No assignment (manual use)</p>
+        <% } %>
+        <% if (tmpl.fields && tmpl.fields.length > 0) { %>
+        <p class="text-gray-600 text-xs mb-3"><%= tmpl.fields.length %> text overlay fields configured</p>
+        <% } %>
+        <div class="flex gap-2">
+          <% if (tmpl.backgroundImage) { %>
+          <button onclick="previewTemplate('<%= tmpl.backgroundImage %>', '<%= tmpl.name %>')" class="btn-neon text-xs px-3 py-1 flex-1">👁 PREVIEW</button>
+          <% } %>
+          <form action="/certificates/templates/<%= tmpl._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this template?')" class="flex-1">
+            <button type="submit" class="btn-neon text-xs px-3 py-1 w-full text-red-400 border-red-500/40">🗑 DELETE</button>
+          </form>
+        </div>
+      </div>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</main>
+
+<!-- Full Preview Modal -->
+<div id="preview-modal" class="hidden fixed inset-0 bg-black/90 flex items-center justify-center z-50 p-4" onclick="document.getElementById('preview-modal').classList.add('hidden')">
+  <div class="max-w-3xl w-full" onclick="event.stopPropagation()">
+    <div class="flex items-center justify-between mb-3">
+      <h3 id="modal-tmpl-name" class="text-neon font-display font-bold tracking-widest text-sm"></h3>
+      <button onclick="document.getElementById('preview-modal').classList.add('hidden')" class="btn-neon text-xs px-4">CLOSE</button>
+    </div>
+    <div class="relative w-full bg-dark-border rounded overflow-hidden" style="aspect-ratio: 1.414;">
+      <img id="modal-preview-img" src="" class="w-full h-full object-contain" alt="Certificate Preview">
+    </div>
+  </div>
+</div>
+
+<script>
+function toggleEntityId(val) {
+  const field = document.getElementById('entity-id-field');
+  field.classList.toggle('hidden', val === 'none' || val === 'all');
+}
+
+const typeInfoMap = {
+  participation: 'Used for: event attendance certificates (auto-sent after attending)',
+  completion: 'Used for: course & quiz completion certificates',
+  winner_1st: 'Used for: hackathon 1st place winner team certificates',
+  winner_2nd: 'Used for: hackathon 2nd place winner team certificates',
+  winner_3rd: 'Used for: hackathon 3rd place runner-up certificates',
+  custom: 'Used for: manually issued custom certificates',
+};
+
+function updateTypeInfo(type) {
+  document.getElementById('type-info').textContent = typeInfoMap[type] || '';
+}
+
+function updatePreview(url) {
+  const bg = document.getElementById('preview-bg');
+  const placeholder = document.getElementById('preview-placeholder');
+  if (url && url.startsWith('http')) {
+    bg.src = url;
+    bg.classList.remove('hidden');
+    placeholder.classList.add('hidden');
+    bg.onload = () => renderOverlay();
+    bg.onerror = () => {
+      bg.classList.add('hidden');
+      placeholder.classList.remove('hidden');
+    };
+  } else {
+    bg.classList.add('hidden');
+    placeholder.classList.remove('hidden');
+  }
+}
+
+function renderOverlay() {
+  const svg = document.getElementById('preview-svg');
+  const W = 1122, H = 793;
+
+  const samples = {
+    participant_name: 'Rahul Sharma',
+    event_title: 'Web Development Workshop',
+    date: new Date().toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' }),
+  };
+
+  const fields = ['participant_name', 'event_title', 'date'];
+  let svgContent = '';
+
+  fields.forEach(key => {
+    const x = parseFloat(document.querySelector(`input[name="field_x_${key}"]`)?.value || 50);
+    const y = parseFloat(document.querySelector(`input[name="field_y_${key}"]`)?.value || 50);
+    const size = parseInt(document.querySelector(`input[name="field_size_${key}"]`)?.value || 16);
+    const color = document.querySelector(`input[name="field_color_${key}"]`)?.value || '#ffffff';
+    const align = document.querySelector(`select[name="field_align_${key}"]`)?.value || 'center';
+    const weight = document.querySelector(`select[name="field_weight_${key}"]`)?.value || '400';
+
+    const px = (x / 100) * W;
+    const py = (y / 100) * H;
+    const anchor = align === 'center' ? 'middle' : align === 'right' ? 'end' : 'start';
+
+    svgContent += `
+      <text x="${px}" y="${py}"
+        text-anchor="${anchor}"
+        font-family="serif"
+        font-size="${size}"
+        font-weight="${weight}"
+        fill="${color}">
+        ${samples[key]}
+      </text>`;
+
+    // Position indicator dot
+    svgContent += `<circle cx="${px}" cy="${py}" r="4" fill="${color}" opacity="0.6"/>`;
+  });
+
+  svg.innerHTML = svgContent;
+}
+
+function previewTemplate(url, name) {
+  document.getElementById('modal-preview-img').src = url;
+  document.getElementById('modal-tmpl-name').textContent = name;
+  document.getElementById('preview-modal').classList.remove('hidden');
+}
+
+// Init
+document.addEventListener('DOMContentLoaded', () => {
+  renderOverlay();
+  const currentBg = document.getElementById('bg-image-input')?.value;
+  if (currentBg) updatePreview(currentBg);
+});
+</script>
+<%- include('../partials/footer') %>

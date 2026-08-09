@@ -1,0 +1,68 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="mb-8">
+    <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ DASHBOARD</p>
+    <h1 class="font-display font-bold text-white text-2xl">WELCOME, <%= user.name.toUpperCase().split(' ')[0] %></h1>
+  </div>
+  <!-- Upgrade notice -->
+  <div class="card p-5 mb-8 border-yellow-500/30 bg-yellow-500/5 flex items-start gap-4">
+    <span class="text-2xl flex-shrink-0">💡</span>
+    <div>
+      <p class="text-yellow-400 font-bold text-sm">Unlock Full Access</p>
+      <p class="text-gray-400 text-sm mt-1">Register with your <span class="text-neon font-mono">@gcettb.ac.in</span> college email to access courses, quizzes, leaderboard, and earn points.</p>
+    </div>
+  </div>
+  <!-- Public Events -->
+  <div class="mb-8">
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">PUBLIC EVENTS</h2>
+      <a href="/events" class="text-neon text-xs font-mono hover:underline">VIEW ALL →</a>
+    </div>
+    <% if (publicEvents.length === 0) { %>
+    <div class="card p-8 text-center"><p class="text-gray-500">No public events scheduled</p></div>
+    <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+      <% publicEvents.forEach(event => { %>
+      <a href="/events/<%= event._id %>" class="card p-5 block group">
+        <div class="flex items-start justify-between mb-3">
+          <span class="badge badge-neon"><%= event.type %></span>
+          <span class="text-xs text-gray-500 font-mono"><%= new Date(event.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+        </div>
+        <h3 class="text-white font-semibold mb-2 group-hover:text-neon transition-colors"><%= event.title %></h3>
+        <p class="text-gray-500 text-sm line-clamp-2"><%= event.description.substring(0,90) %>...</p>
+        <div class="mt-3 pt-3 border-t border-dark-border flex justify-between text-xs text-gray-600 font-mono">
+          <span>👥 <%= event.participants.length %>/<%= event.maxParticipants %></span>
+          <span class="text-neon">REGISTER →</span>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+  <!-- Hackathons -->
+  <div>
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">HACKATHONS</h2>
+      <a href="/hackathons" class="text-neon text-xs font-mono hover:underline">VIEW ALL →</a>
+    </div>
+    <% if (publicHackathons.length === 0) { %>
+    <div class="card p-8 text-center"><p class="text-gray-500">No open hackathons right now</p></div>
+    <% } else { %>
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+      <% publicHackathons.forEach(h => { %>
+      <a href="/hackathons/<%= h._id %>" class="card p-5 block group">
+        <div class="flex items-center gap-2 mb-3">
+          <span class="text-2xl">⚡</span>
+          <span class="badge badge-neon"><%= h.status.replace(/_/g,' ') %></span>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-1 group-hover:text-neon transition-colors"><%= h.title %></h3>
+        <% if (h.tagline) { %><p class="text-gray-500 text-sm mb-3"><%= h.tagline %></p><% } %>
+        <p class="text-xs text-gray-600 font-mono">🗓 <%= new Date(h.hackathonStart).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) %></p>
+      </a>
+      <% }) %>
+    </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

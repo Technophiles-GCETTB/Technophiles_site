@@ -1,0 +1,130 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/hackathons/<%= team.hackathon._id %>" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK TO HACKATHON</a></div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <!-- Team Info -->
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <div class="flex items-start justify-between mb-6">
+          <div>
+            <p class="text-neon font-mono text-xs mb-1">◈ TEAM</p>
+            <h1 class="font-display font-bold text-white text-3xl"><%= team.name %></h1>
+          </div>
+          <span class="badge badge-neon">CODE: <%= team.inviteCode %></span>
+        </div>
+        <!-- Leader -->
+        <div class="mb-4">
+          <p class="text-xs text-gray-500 font-mono mb-2">TEAM LEADER</p>
+          <div class="flex items-center gap-3 p-3 bg-neon/5 border border-neon/20 rounded">
+            <img src="<%= team.leader.avatar||'/images/default-avatar.png' %>" class="w-10 h-10 rounded-full border-2 border-neon" onerror="this.src='/images/default-avatar.png'">
+            <div>
+              <p class="text-white font-bold"><%= team.leader.name %></p>
+              <% if (team.leader.github) { %><a href="<%= team.leader.github %>" class="text-xs text-gray-400 hover:text-neon">GitHub ↗</a><% } %>
+            </div>
+            <span class="badge badge-neon ml-auto">Leader</span>
+          </div>
+        </div>
+        <!-- Members -->
+        <% if (team.members.length > 0) { %>
+        <div>
+          <p class="text-xs text-gray-500 font-mono mb-2">MEMBERS (<%= team.members.length %>)</p>
+          <div class="space-y-2">
+            <% team.members.forEach(m => { %>
+            <% if (m.user) { %>
+            <div class="flex items-center gap-3 p-3 bg-dark-hover rounded">
+              <img src="<%= m.user.avatar||'/images/default-avatar.png' %>" class="w-8 h-8 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <p class="text-white text-sm"><%= m.user.name %></p>
+            </div>
+            <% } %>
+            <% }) %>
+          </div>
+        </div>
+        <% } %>
+      </div>
+
+      <!-- Submission -->
+      <% const isLeader = user && team.leader._id.toString() === user._id.toString(); %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">
+          <%= submission ? 'SUBMISSION' : (isLeader ? 'SUBMIT PROJECT' : 'NO SUBMISSION YET') %>
+        </h2>
+        <% if (submission) { %>
+          <div class="space-y-3">
+            <div><p class="text-xs text-gray-500 font-mono">PROJECT</p><p class="text-white font-bold text-lg"><%= submission.projectTitle %></p></div>
+            <div><p class="text-xs text-gray-500 font-mono">DESCRIPTION</p><p class="text-gray-400 text-sm"><%= submission.description %></p></div>
+            <div class="flex gap-3">
+              <a href="<%= submission.githubLink %>" target="_blank" class="btn-neon text-sm">GitHub ↗</a>
+              <% if (submission.demoLink) { %><a href="<%= submission.demoLink %>" target="_blank" class="btn-neon text-sm">Demo ↗</a><% } %>
+            </div>
+            <% if (submission.techStack?.length) { %>
+            <div class="flex flex-wrap gap-1"><% submission.techStack.forEach(t => { %><span class="badge badge-gray"><%= t %></span><% }) %></div>
+            <% } %>
+            <% if (submission.averageScore > 0) { %>
+            <div class="pt-3 border-t border-dark-border">
+              <p class="text-xs text-gray-500 font-mono">AVERAGE SCORE</p>
+              <p class="text-neon font-display font-black text-3xl"><%= submission.averageScore.toFixed(1) %><span class="text-gray-500 text-base">/40</span></p>
+            </div>
+            <% } %>
+          </div>
+        <% } else if (isLeader) { %>
+          <form action="/hackathons/<%= team.hackathon._id %>/teams/<%= team._id %>/submit" method="POST" class="space-y-4">
+            <div>
+              <label class="block text-xs text-gray-400 mb-2 font-mono">PROJECT TITLE *</label>
+              <input type="text" name="projectTitle" required placeholder="My Awesome Project" class="input-dark text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-2 font-mono">DESCRIPTION *</label>
+              <textarea name="description" required rows="3" placeholder="What does your project do?" class="input-dark text-sm resize-none"></textarea>
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-2 font-mono">GITHUB LINK *</label>
+              <input type="url" name="githubLink" required placeholder="https://github.com/..." class="input-dark text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-2 font-mono">DEMO LINK</label>
+              <input type="url" name="demoLink" placeholder="https://..." class="input-dark text-sm" />
+            </div>
+            <div>
+              <label class="block text-xs text-gray-400 mb-2 font-mono">TECH STACK (comma separated)</label>
+              <input type="text" name="techStack" placeholder="React, Node.js, MongoDB" class="input-dark text-sm" />
+            </div>
+            <button type="submit" class="btn-neon-solid px-8 py-2 text-sm font-display tracking-widest">SUBMIT PROJECT</button>
+          </form>
+        <% } else { %>
+          <p class="text-gray-500 text-sm">Only the team leader can submit the project.</p>
+        <% } %>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <div class="card p-5">
+        <h3 class="font-display text-neon text-xs tracking-widest font-bold mb-3">HACKATHON</h3>
+        <p class="text-white font-bold"><%= team.hackathon.title %></p>
+        <% if (team.hackathon.submissionDeadline) { %>
+        <p class="text-xs text-gray-500 font-mono mt-2">Deadline: <%= new Date(team.hackathon.submissionDeadline).toLocaleString('en-IN',{day:'numeric',month:'short',hour:'2-digit',minute:'2-digit'}) %></p>
+        <% } %>
+        <div class="mt-3 pt-3 border-t border-dark-border">
+          <p class="text-xs text-gray-500">Status: <span class="badge badge-neon"><%= team.status %></span></p>
+        </div>
+      </div>
+      <!-- Certificate Downloads -->
+      <div class="card p-5">
+        <h3 class="font-display text-neon text-xs tracking-widest font-bold mb-3">CERTIFICATES</h3>
+        <div class="space-y-2">
+          <a href="/certificates/hackathon/<%= team.hackathon._id %>/participation" class="sidebar-link text-sm">📄 Participation Certificate</a>
+          <% if (submission && submission.rank === 1) { %><a href="/certificates/hackathon/<%= team.hackathon._id %>/winner/1" class="sidebar-link text-sm text-yellow-400">🥇 1st Place Certificate</a><% } %>
+          <% if (submission && submission.rank === 2) { %><a href="/certificates/hackathon/<%= team.hackathon._id %>/winner/2" class="sidebar-link text-sm" style="color:#C0C0C0">🥈 2nd Place Certificate</a><% } %>
+          <% if (submission && submission.rank === 3) { %><a href="/certificates/hackathon/<%= team.hackathon._id %>/winner/3" class="sidebar-link text-sm" style="color:#CD7F32">🥉 3rd Place Certificate</a><% } %>
+        </div>
+      </div>
+        <p class="text-white font-mono text-xl font-black text-center py-2 border border-neon/30 rounded bg-neon/5"><%= team.inviteCode %></p>
+        <p class="text-xs text-gray-500 text-center mt-2">Share this code to invite</p>
+        <button onclick="navigator.clipboard.writeText('<%= team.inviteCode %>').then(()=>this.textContent='Copied!')" class="btn-neon w-full text-xs py-2 mt-3">COPY CODE</button>
+      </div>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

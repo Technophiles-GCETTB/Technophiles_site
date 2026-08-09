@@ -1,0 +1,74 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/about" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK TO ABOUT</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-8">EDIT ABOUT PAGE</h1>
+    <form action="/about" method="POST" class="space-y-5">
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">PAGE TITLE</label>
+          <input type="text" name="title" value="<%= page?.title||'About Technophiles' %>" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">FOUNDED YEAR</label>
+          <input type="text" name="founded" value="<%= page?.founded||'' %>" placeholder="2018" class="input-dark text-sm" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono">COLLEGE AFFILIATION</label>
+        <input type="text" name="collegeAffiliation" value="<%= page?.collegeAffiliation||'GCETTB' %>" class="input-dark text-sm" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono">MISSION STATEMENT</label>
+        <textarea name="mission" rows="3" class="input-dark text-sm resize-none"><%= page?.mission||'' %></textarea>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono">VISION STATEMENT</label>
+        <textarea name="vision" rows="3" class="input-dark text-sm resize-none"><%= page?.vision||'' %></textarea>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono">ADDITIONAL CONTENT (HTML)</label>
+        <textarea name="content" rows="5" placeholder="<p>More about the club...</p>" class="input-dark text-sm resize-none font-mono"><%= page?.content||'' %></textarea>
+      </div>
+      <!-- Stats -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-3 font-mono">STATS BOXES</label>
+        <div id="stats-container" class="space-y-2">
+          <% const statsArr = page?.stats?.length ? page.stats : [{label:'Members',value:'500+',icon:'👥'},{label:'Events',value:'50+',icon:'📅'}]; %>
+          <% statsArr.forEach(s => { %>
+          <div class="grid grid-cols-3 gap-2 stat-row">
+            <input type="text" name="stat_label" value="<%= s.label %>" placeholder="Label" class="input-dark text-sm" />
+            <input type="text" name="stat_value" value="<%= s.value %>" placeholder="Value" class="input-dark text-sm" />
+            <input type="text" name="stat_icon" value="<%= s.icon %>" placeholder="Emoji" class="input-dark text-sm" />
+          </div>
+          <% }) %>
+        </div>
+        <button type="button" onclick="addStat()" class="btn-neon text-xs px-4 py-1 mt-2">+ ADD STAT</button>
+      </div>
+      <!-- Social Links -->
+      <div>
+        <label class="block text-xs text-gray-400 mb-3 font-mono">SOCIAL LINKS</label>
+        <div class="grid grid-cols-2 gap-3">
+          <% [['github','GitHub'],['linkedin','LinkedIn'],['instagram','Instagram'],['twitter','Twitter'],['youtube','YouTube'],['discord','Discord'],['website','Website']].forEach(([key, label]) => { %>
+          <div>
+            <label class="block text-xs text-gray-500 mb-1 font-mono"><%= label %></label>
+            <input type="url" name="<%= key %>" value="<%= page?.socialLinks?.[key]||'' %>" placeholder="https://..." class="input-dark text-xs" />
+          </div>
+          <% }) %>
+        </div>
+      </div>
+      <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm">SAVE ABOUT PAGE</button>
+    </form>
+  </div>
+</main>
+<script>
+function addStat() {
+  const row = document.createElement('div');
+  row.className = 'grid grid-cols-3 gap-2 stat-row';
+  row.innerHTML = '<input type="text" name="stat_label" placeholder="Label" class="input-dark text-sm"><input type="text" name="stat_value" placeholder="Value" class="input-dark text-sm"><input type="text" name="stat_icon" placeholder="Emoji" class="input-dark text-sm">';
+  document.getElementById('stats-container').appendChild(row);
+}
+</script>
+<%- include('../partials/footer') %>

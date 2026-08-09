@@ -1,0 +1,960 @@
+<%- include('partials/head') %>
+<%- include('partials/navbar') %>
+
+<!-- AOS CSS -->
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+
+<main class="pt-16">
+
+  <!-- HERO SECTION -->
+  <section class="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <!-- Animated Grid Background -->
+    <div class="absolute inset-0" style="background-image: linear-gradient(rgba(57,255,20,0.03) 1px, transparent 1px), linear-gradient(90deg, rgba(57,255,20,0.03) 1px, transparent 1px); background-size: 40px 40px; animation: gridMove 20s linear infinite;"></div>
+    
+    <!-- Floating Orbs -->
+    <div class="absolute top-1/4 left-1/4 w-96 h-96 rounded-full orb-glow" style="background: radial-gradient(circle, rgba(57,255,20,0.08) 0%, transparent 70%); animation: floatOrb 6s ease-in-out infinite;"></div>
+    <div class="absolute bottom-1/4 right-1/4 w-64 h-64 rounded-full orb-glow" style="background: radial-gradient(circle, rgba(57,255,20,0.05) 0%, transparent 70%); animation: floatOrb 8s ease-in-out infinite 2s;"></div>
+    <div class="absolute top-1/2 right-1/6 w-48 h-48 rounded-full orb-glow hidden lg:block" style="background: radial-gradient(circle, rgba(57,255,20,0.06) 0%, transparent 70%); animation: floatOrb 7s ease-in-out infinite 1s;"></div>
+
+    <div class="relative text-center px-4 max-w-5xl mx-auto">
+      <!-- Badge -->
+      <div class="inline-block border border-neon/30 px-4 py-1 mb-6 text-neon text-xs font-mono tracking-widest" data-aos="fade-down" data-aos-delay="100">
+        <i data-lucide="hexagon" class="inline w-3 h-3 mr-1" style="vertical-align: middle;"></i> GCETTB OFFICIAL TECH CLUB <i data-lucide="hexagon" class="inline w-3 h-3 ml-1" style="vertical-align: middle;"></i>
+      </div>
+      
+      <!-- Title -->
+      <h1 class="font-display font-black text-white mb-6 leading-tight" style="font-size: clamp(2rem, 7vw, 6rem);" data-aos="zoom-in" data-aos-delay="200">
+        TECHNO<span class="neon-text glitch-text">PHILES</span>
+      </h1>
+      
+      <!-- Subtitle -->
+      <p class="text-gray-400 text-xl mb-10 max-w-2xl mx-auto leading-relaxed" data-aos="fade-up" data-aos-delay="300">
+        Where code meets creativity. Join India's most active college tech community — learn, build, compete, and grow.
+      </p>
+      
+      <!-- CTA Buttons -->
+      <div class="flex flex-col sm:flex-row flex-wrap gap-3 sm:gap-4 justify-center items-center" data-aos="fade-up" data-aos-delay="400">
+        <% if (!currentUser) { %>
+          <a href="/auth/register" class="btn-neon-solid text-base px-8 py-3 font-display tracking-widest group">
+            JOIN NOW <i data-lucide="arrow-right" class="inline w-4 h-4 ml-1 transition-transform group-hover:translate-x-1"></i>
+          </a>
+          <a href="/events" class="btn-neon text-base px-8 py-3 font-display tracking-widest group">
+            EXPLORE <i data-lucide="compass" class="inline w-4 h-4 ml-1 transition-transform group-hover:rotate-45"></i>
+          </a>
+        <% } else { %>
+          <a href="/dashboard" class="btn-neon-solid text-base px-8 py-3 font-display tracking-widest group">
+            DASHBOARD <i data-lucide="layout-dashboard" class="inline w-4 h-4 ml-1 transition-transform group-hover:scale-110"></i>
+          </a>
+          <a href="/hackathons" class="btn-neon text-base px-8 py-3 font-display tracking-widest group">
+            HACKATHONS <i data-lucide="zap" class="inline w-4 h-4 ml-1 transition-transform group-hover:scale-125"></i>
+          </a>
+        <% } %>
+      </div>
+
+      <!-- Stats Grid -->
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-6 mt-10 sm:mt-20 max-w-3xl mx-auto">
+        <% [['500+','Members','users'],['50+','Events','calendar'],['20+','Hackathons','trophy'],['100+','Courses','book-open']].forEach(([n,l,icon], i) => { %>
+        <div class="card p-5 text-center stat-card" data-aos="fade-up" data-aos-delay="<%= 500 + (i * 100) %>">
+          <i data-lucide="<%= icon %>" class="w-5 h-5 mx-auto mb-2 text-neon/60 stat-icon"></i>
+          <p class="text-3xl font-display font-black neon-text"><%= n %></p>
+          <p class="text-gray-500 text-xs mt-1 tracking-widest uppercase font-mono"><%= l %></p>
+        </div>
+        <% }) %>
+      </div>
+    </div>
+
+    <!-- Scroll Indicator -->
+    <div class="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 text-gray-600 text-xs font-mono animate-bounce-slow">
+      <span>SCROLL</span>
+      <div class="w-px h-12 bg-gradient-to-b from-neon/50 to-transparent"></div>
+    </div>
+  </section>
+
+  <!-- ABOUT SECTION -->
+  <section class="py-20 px-4 max-w-7xl mx-auto" data-aos="fade-up">
+    <div class="card p-8 md:p-12 relative overflow-hidden group">
+      <div class="absolute -top-20 -right-20 w-64 h-64 rounded-full opacity-20 group-hover:opacity-30 transition-opacity duration-700" style="background: radial-gradient(circle, rgba(57,255,20,0.15) 0%, transparent 70%);"></div>
+      
+      <div class="relative grid md:grid-cols-2 gap-10 items-center">
+        <div>
+          <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center gap-2">
+            <i data-lucide="info" class="w-4 h-4"></i> ◈ ABOUT US
+          </p>
+          <h2 class="font-display font-bold text-white text-3xl md:text-4xl mb-6">Building the Future,<br><span class="neon-text">One Line at a Time</span></h2>
+          <p class="text-gray-400 leading-relaxed mb-4">
+            Technophiles is the official tech club of Government College of Engineering and Textile Technology, Berhampore, formed to bring together passionate students interested in technology, innovation, and real-world problem solving. We are a community of developers, engineers, and creators who believe in learning beyond classrooms through practical implementation and collaboration.
+          </p>
+          <p class="text-gray-500 leading-relaxed mb-8">
+            Our members come from diverse technical backgrounds, working together across software and core engineering domains to build projects, explore new technologies, and develop industry-ready skills. Technophiles serves as a platform where curiosity turns into creativity and ideas evolve into impactful solutions.
+          </p>
+          <a href="/about" class="btn-neon-solid text-sm px-6 py-2.5 font-display tracking-widest inline-flex items-center gap-2 group/btn">
+            READ MORE <i data-lucide="arrow-right" class="w-4 h-4 transition-transform group-hover/btn:translate-x-1"></i>
+          </a>
+        </div>
+        <div class="relative">
+          <div class="grid grid-cols-2 gap-4">
+            <div class="card p-4 text-center hover:border-neon/40 transition-all duration-300 hover:-translate-y-1" data-aos="zoom-in" data-aos-delay="100">
+              <i data-lucide="code-2" class="w-8 h-8 mx-auto text-neon mb-2"></i>
+              <p class="text-white font-semibold text-sm">Coding</p>
+            </div>
+            <div class="card p-4 text-center hover:border-neon/40 transition-all duration-300 hover:-translate-y-1 mt-6" data-aos="zoom-in" data-aos-delay="200">
+              <i data-lucide="lightbulb" class="w-8 h-8 mx-auto text-neon mb-2"></i>
+              <p class="text-white font-semibold text-sm">Innovation</p>
+            </div>
+            <div class="card p-4 text-center hover:border-neon/40 transition-all duration-300 hover:-translate-y-1" data-aos="zoom-in" data-aos-delay="300">
+              <i data-lucide="users" class="w-8 h-8 mx-auto text-neon mb-2"></i>
+              <p class="text-white font-semibold text-sm">Community</p>
+            </div>
+            <div class="card p-4 text-center hover:border-neon/40 transition-all duration-300 hover:-translate-y-1 mt-6" data-aos="zoom-in" data-aos-delay="400">
+              <i data-lucide="rocket" class="w-8 h-8 mx-auto text-neon mb-2"></i>
+              <p class="text-white font-semibold text-sm">Growth</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- UPCOMING EVENTS -->
+  <% if (upcomingEvents.length > 0) { %>
+  <section class="py-20 px-4 max-w-7xl mx-auto">
+    <div class="flex items-center justify-between mb-10" data-aos="fade-right">
+      <div>
+        <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center gap-2">
+          <i data-lucide="sparkles" class="w-3 h-3"></i> ◈ UPCOMING
+        </p>
+        <h2 class="font-display font-bold text-white text-3xl">EVENTS</h2>
+      </div>
+      <a href="/events" class="btn-neon text-sm group">
+        VIEW ALL <i data-lucide="arrow-right" class="inline w-3 h-3 ml-1 transition-transform group-hover:translate-x-1"></i>
+      </a>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <% upcomingEvents.forEach((event, i) => { %>
+      <a href="/events/<%= event._id %>" class="card p-5 block group event-card" data-aos="fade-up" data-aos-delay="<%= i * 100 %>">
+        <div class="flex items-start justify-between mb-3">
+          <span class="badge badge-neon text-xs flex items-center gap-1">
+            <i data-lucide="tag" class="w-3 h-3"></i> <%= event.type %>
+          </span>
+          <span class="text-xs text-gray-500 font-mono flex items-center gap-1">
+            <i data-lucide="calendar" class="w-3 h-3"></i> <%= new Date(event.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %>
+          </span>
+        </div>
+        <h3 class="text-white font-semibold text-lg mb-2 group-hover:text-neon transition-colors"><%= event.title %></h3>
+        <p class="text-gray-500 text-sm mb-4 line-clamp-2"><%= event.description.substring(0,100) %>...</p>
+        <div class="flex items-center justify-between text-xs text-gray-600">
+          <span class="flex items-center gap-1"><i data-lucide="users" class="w-3 h-3"></i> <%= event.participants.length %>/<%= event.maxParticipants %></span>
+          <span class="text-neon font-mono flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> +<%= event.pointsReward %> pts</span>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- HACKATHONS -->
+  <% if (hackathons.length > 0) { %>
+  <section class="py-20 px-4 bg-dark-card">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-10" data-aos="fade-right">
+        <div>
+          <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center gap-2">
+            <i data-lucide="zap" class="w-3 h-3"></i> ◈ BUILD & WIN
+          </p>
+          <h2 class="font-display font-bold text-white text-3xl">HACKATHONS</h2>
+        </div>
+        <a href="/hackathons" class="btn-neon text-sm group">
+          VIEW ALL <i data-lucide="arrow-right" class="inline w-3 h-3 ml-1 transition-transform group-hover:translate-x-1"></i>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <% hackathons.forEach((h, i) => { %>
+        <a href="/hackathons/<%= h._id %>" class="card p-6 block group hackathon-card" data-aos="fade-up" data-aos-delay="<%= i * 100 %>">
+          <div class="flex items-center gap-2 mb-4">
+            <div class="w-10 h-10 bg-neon/10 border border-neon/30 rounded flex items-center justify-center icon-box">
+              <i data-lucide="zap" class="text-neon text-lg"></i>
+            </div>
+            <span class="badge badge-neon text-xs"><%= h.status.replace('_',' ') %></span>
+          </div>
+          <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors"><%= h.title %></h3>
+          <% if (h.tagline) { %><p class="text-gray-500 text-sm mb-4 line-clamp-2"><%= h.tagline %></p><% } %>
+          <div class="flex justify-between text-xs text-gray-600 font-mono pt-3 border-t border-dark-border">
+            <span class="flex items-center gap-1"><i data-lucide="calendar-days" class="w-3 h-3"></i> <%= new Date(h.hackathonStart).toLocaleDateString('en-IN',{day:'numeric',month:'short'}) %></span>
+            <span class="text-neon flex items-center gap-1"><i data-lucide="star" class="w-3 h-3"></i> +<%= h.pointsReward %> pts</span>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- FEATURED PROJECTS -->
+  <% if (typeof featuredProjects !== 'undefined' && featuredProjects.length > 0) { %>
+  <section class="py-20 px-4 bg-dark-card">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex items-center justify-between mb-10" data-aos="fade-right">
+        <div>
+          <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center gap-2">
+            <i data-lucide="folder-git-2" class="w-3 h-3"></i> ◈ COMMUNITY WORK
+          </p>
+          <h2 class="font-display font-bold text-white text-3xl">FEATURED PROJECTS</h2>
+        </div>
+        <a href="/projects" class="btn-neon text-sm group">
+          VIEW ALL <i data-lucide="arrow-right" class="inline w-3 h-3 ml-1 transition-transform group-hover:translate-x-1"></i>
+        </a>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <% featuredProjects.forEach((p, i) => { %>
+        <a href="/projects/<%= p._id %>" class="card group block overflow-hidden project-card" data-aos="fade-up" data-aos-delay="<%= i * 100 %>">
+          <div class="w-full h-36 overflow-hidden bg-dark-hover flex items-center justify-center relative">
+            <% if (p.thumbnail && !p.thumbnail.includes('project-default')) { %>
+            <img src="<%= p.thumbnail %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex'">
+            <div class="absolute inset-0 flex items-center justify-center text-4xl hidden">
+              <i data-lucide="<%= p.category==='web'?'globe':p.category==='mobile'?'smartphone':p.category==='ai_ml'?'brain':'lightbulb' %>" class="w-12 h-12 text-neon/40"></i>
+            </div>
+            <% } else { %>
+            <div class="flex items-center justify-center text-4xl">
+              <i data-lucide="<%= p.category==='web'?'globe':p.category==='mobile'?'smartphone':p.category==='ai_ml'?'brain':'lightbulb' %>" class="w-12 h-12 text-neon/40"></i>
+            </div>
+            <% } %>
+          </div>
+          <div class="p-4">
+            <h3 class="text-white font-bold group-hover:text-neon transition-colors"><%= p.title %></h3>
+            <p class="text-gray-500 text-sm mt-1 line-clamp-2"><%= p.description %></p>
+            <div class="flex items-center justify-between mt-3 text-xs text-gray-600 font-mono">
+              <span><%= p.techStack?.slice(0,2).join(' · ') %></span>
+              <span class="flex items-center gap-1"><i data-lucide="heart" class="w-3 h-3 text-neon/60"></i> <%= p.likes %></span>
+            </div>
+          </div>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- QUICK LINKS BAND -->
+  <section class="py-10 px-4 border-y border-dark-border">
+    <div class="max-w-7xl mx-auto">
+      <div class="flex flex-wrap justify-center gap-4">
+        <% [['calendar','Events','/events'],['zap','Hackathons','/hackathons'],['radio','Live Classes','/live-classes'],['book-open','Courses','/courses'],['map','Roadmaps','/roadmaps'],['calendar-days','Calendar','/calendar'],['folder-git-2','Projects','/projects'],['users','Team','/members']].forEach(([icon,label,href], i) => { %>
+        <a href="<%= href %>" class="flex items-center gap-2 px-4 py-2 card hover:border-neon/30 text-sm text-gray-400 hover:text-neon transition-all duration-300 hover:-translate-y-0.5 quick-link" data-aos="zoom-in" data-aos-delay="<%= i * 50 %>">
+          <i data-lucide="<%= icon %>" class="w-4 h-4"></i><span class="font-semibold"><%= label %></span>
+        </a>
+        <% }) %>
+      </div>
+    </div>
+  </section>
+
+  <!-- PLATFORM FEATURES -->
+  <section class="py-20 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-12" data-aos="fade-down">
+      <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center justify-center gap-2">
+        <i data-lucide="layers" class="w-3 h-3"></i> ◈ WHAT WE OFFER
+      </p>
+      <h2 class="font-display font-bold text-white text-3xl">PLATFORM FEATURES</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <% [
+        ['book-open','LMS & Courses','/courses','Self-paced learning with modules, video content, and progress tracking'],
+        ['trophy','Hackathons','/hackathons','Team registration, submissions, judge scoring, and leaderboards'],
+        ['brain','Quiz System','/quiz','MCQ quizzes with timers, auto-evaluation and scoreboards'],
+        ['scan-line','QR Attendance','/attendance/my','Scan QR to mark attendance and earn points automatically'],
+        ['bar-chart-3','Leaderboard','/leaderboard','Points system with badges and rankings across all activities'],
+        ['map','Roadmaps','/roadmaps','Structured learning paths for Web Dev, DSA, AI/ML and more']
+      ].forEach(([icon, title, href, desc], i) => { %>
+      <a href="<%= href %>" class="card p-6 group feature-card block" data-aos="fade-up" data-aos-delay="<%= i * 100 %>">
+        <div class="w-12 h-12 rounded-lg bg-neon/5 border border-neon/20 flex items-center justify-center mb-4 group-hover:bg-neon/10 group-hover:border-neon/40 transition-all duration-300 feature-icon-box">
+          <i data-lucide="<%= icon %>" class="w-6 h-6 text-neon feature-icon transition-transform duration-300"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display flex items-center gap-2">
+          <%= title %> <i data-lucide="arrow-up-right" class="w-4 h-4 opacity-0 group-hover:opacity-100 transition-opacity"></i>
+        </h3>
+        <p class="text-gray-500 text-sm leading-relaxed"><%= desc %></p>
+      </a>
+      <% }) %>
+    </div>
+  </section>
+
+  <!-- ECOSYSTEM FLYWHEEL -->
+     <!-- ECOSYSTEM FLYWHEEL -->
+  <section class="py-20 px-4 bg-dark-card relative overflow-hidden">
+    <div class="max-w-7xl mx-auto">
+      <div class="text-center mb-12" data-aos="fade-down">
+        <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center justify-center gap-2">
+          <i data-lucide="refresh-cw" class="w-3 h-3"></i> ◈ HOW IT WORKS
+        </p>
+        <h2 class="font-display font-bold text-white text-3xl">THE ECOSYSTEM <span class="neon-text">FLYWHEEL</span></h2>
+        <p class="text-gray-500 mt-3 max-w-xl mx-auto">A self-reinforcing cycle where every activity fuels growth for the entire community.</p>
+      </div>
+
+      <!-- 
+        MOBILE VIEW: Vertical Flow (visible below md breakpoint)
+        Clean stacked cards with animated connecting lines
+      -->
+      <div class="md:hidden flex flex-col items-center gap-0 max-w-sm mx-auto">
+        <!-- Node 1 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="0">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="graduation-cap" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">LEARN</p>
+              <p class="text-gray-500 text-xs">Courses & Roadmaps</p>
+            </div>
+            <div class="flex flex-col items-center gap-0.5">
+              <i data-lucide="arrow-down" class="w-4 h-4 text-neon/40 animate-bounce"></i>
+            </div>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="flex flex-col items-center py-1">
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/30 to-neon/60"></div>
+          <div class="w-2 h-2 rounded-full bg-neon/50 animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/60 to-neon/30"></div>
+        </div>
+
+        <!-- Node 2 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="80">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="hammer" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">BUILD</p>
+              <p class="text-gray-500 text-xs">Projects & Hackathons</p>
+            </div>
+            <i data-lucide="arrow-down" class="w-4 h-4 text-neon/40 animate-bounce"></i>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="flex flex-col items-center py-1">
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/30 to-neon/60"></div>
+          <div class="w-2 h-2 rounded-full bg-neon/50 animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/60 to-neon/30"></div>
+        </div>
+
+        <!-- Node 3 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="160">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="swords" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">COMPETE</p>
+              <p class="text-gray-500 text-xs">Quizzes & Contests</p>
+            </div>
+            <i data-lucide="arrow-down" class="w-4 h-4 text-neon/40 animate-bounce"></i>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="flex flex-col items-center py-1">
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/30 to-neon/60"></div>
+          <div class="w-2 h-2 rounded-full bg-neon/50 animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/60 to-neon/30"></div>
+        </div>
+
+        <!-- Node 4 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="240">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="trophy" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">EARN</p>
+              <p class="text-gray-500 text-xs">Points & Badges</p>
+            </div>
+            <i data-lucide="arrow-down" class="w-4 h-4 text-neon/40 animate-bounce"></i>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="flex flex-col items-center py-1">
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/30 to-neon/60"></div>
+          <div class="w-2 h-2 rounded-full bg-neon/50 animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/60 to-neon/30"></div>
+        </div>
+
+        <!-- Node 5 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="320">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="network" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">CONNECT</p>
+              <p class="text-gray-500 text-xs">Community & Network</p>
+            </div>
+            <i data-lucide="arrow-down" class="w-4 h-4 text-neon/40 animate-bounce"></i>
+          </div>
+        </div>
+
+        <!-- Connector -->
+        <div class="flex flex-col items-center py-1">
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/30 to-neon/60"></div>
+          <div class="w-2 h-2 rounded-full bg-neon/50 animate-pulse"></div>
+          <div class="w-0.5 h-4 bg-gradient-to-b from-neon/60 to-neon/30"></div>
+        </div>
+
+        <!-- Node 6 -->
+        <div class="w-full" data-aos="fade-up" data-aos-delay="400">
+          <div class="card p-4 flex items-center gap-4 border-neon/10 hover:border-neon/40 transition-all duration-300">
+            <div class="w-12 h-12 rounded-full bg-neon/10 border border-neon/20 flex items-center justify-center flex-shrink-0">
+              <i data-lucide="trending-up" class="w-5 h-5 text-neon"></i>
+            </div>
+            <div class="flex-1 min-w-0">
+              <p class="text-white font-bold text-sm">GROW</p>
+              <p class="text-gray-500 text-xs">Career & Skills</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Loop Back -->
+        <div class="flex items-center gap-2 text-neon/50 text-xs font-mono mt-4" data-aos="fade-in" data-aos-delay="500">
+          <div class="w-8 h-px bg-gradient-to-r from-transparent to-neon/30"></div>
+          <i data-lucide="rotate-ccw" class="w-3 h-3 animate-spin-slow"></i>
+          <span>Back to Learn</span>
+          <div class="w-8 h-px bg-gradient-to-l from-transparent to-neon/30"></div>
+        </div>
+      </div>
+
+      <!-- 
+        DESKTOP/TABLET VIEW: Circular Flywheel (hidden on mobile)
+        Full spinning gear with orbiting nodes
+      -->
+      <div class="hidden md:block relative max-w-2xl mx-auto aspect-square" data-aos="zoom-in" data-aos-duration="1000">
+        
+        <!-- Outer Spinning Ring -->
+        <div class="absolute inset-0 flywheel-ring">
+          <svg viewBox="0 0 400 400" class="w-full h-full">
+            <circle cx="200" cy="200" r="185" fill="none" stroke="rgba(57,255,20,0.08)" stroke-width="1" stroke-dasharray="6 6"/>
+            <circle cx="200" cy="200" r="170" fill="none" stroke="rgba(57,255,20,0.04)" stroke-width="1"/>
+            
+            <!-- Animated orbit particles -->
+            <circle cx="200" cy="15" r="3" fill="rgba(57,255,20,0.5)" class="orbit-particle"/>
+            <circle cx="200" cy="385" r="3" fill="rgba(57,255,20,0.5)" class="orbit-particle"/>
+            <circle cx="15" cy="200" r="3" fill="rgba(57,255,20,0.5)" class="orbit-particle"/>
+            <circle cx="385" cy="200" r="3" fill="rgba(57,255,20,0.5)" class="orbit-particle"/>
+            <circle cx="70" cy="70" r="2" fill="rgba(57,255,20,0.3)" class="orbit-particle-sm"/>
+            <circle cx="330" cy="330" r="2" fill="rgba(57,255,20,0.3)" class="orbit-particle-sm"/>
+          </svg>
+        </div>
+
+        <!-- Inner Spinning Gear -->
+        <div class="absolute inset-10 flywheel-gear">
+          <svg viewBox="0 0 400 400" class="w-full h-full">
+            <defs>
+              <linearGradient id="gearGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                <stop offset="0%" style="stop-color:rgba(57,255,20,0.12)"/>
+                <stop offset="100%" style="stop-color:rgba(57,255,20,0.03)"/>
+              </linearGradient>
+            </defs>
+            <path d="M200 55 L208 80 L225 76 L233 98 L253 93 L260 115 L280 110 L285 133 L305 128 L308 150 L328 148 L325 170 L345 172 L338 193 L355 200 L338 207 L345 228 L325 230 L328 252 L308 250 L305 272 L285 267 L280 290 L260 285 L253 307 L233 302 L225 324 L208 320 L200 345 L192 320 L175 324 L167 302 L147 307 L140 285 L120 290 L115 267 L95 272 L92 250 L72 252 L75 230 L55 228 L62 207 L45 200 L62 193 L55 172 L75 170 L72 148 L92 150 L95 128 L115 133 L120 110 L140 115 L147 93 L167 98 L175 76 L192 80 Z" 
+                  fill="url(#gearGrad)" stroke="rgba(57,255,20,0.25)" stroke-width="1.5"/>
+            <circle cx="200" cy="200" r="55" fill="rgba(10,10,10,0.95)" stroke="rgba(57,255,20,0.35)" stroke-width="2"/>
+            <circle cx="200" cy="200" r="22" fill="rgba(57,255,20,0.06)" stroke="rgba(57,255,20,0.4)" stroke-width="1"/>
+            <circle cx="200" cy="200" r="8" fill="rgba(57,255,20,0.3)"/>
+          </svg>
+        </div>
+
+        <!-- Node 1: Top -->
+        <div class="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10" data-aos="fade-down" data-aos-delay="100">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="graduation-cap" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">LEARN</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Courses</p>
+          </div>
+        </div>
+
+        <!-- Node 2: Top Right -->
+        <div class="absolute top-[15%] right-0 translate-x-1/3 z-10" data-aos="fade-left" data-aos-delay="200">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="hammer" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">BUILD</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Projects</p>
+          </div>
+        </div>
+
+        <!-- Node 3: Bottom Right -->
+        <div class="absolute bottom-[15%] right-0 translate-x-1/3 z-10" data-aos="fade-left" data-aos-delay="300">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="swords" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">COMPETE</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Contests</p>
+          </div>
+        </div>
+
+        <!-- Node 4: Bottom -->
+        <div class="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1/2 z-10" data-aos="fade-up" data-aos-delay="400">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="trophy" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">EARN</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Points</p>
+          </div>
+        </div>
+
+        <!-- Node 5: Bottom Left -->
+        <div class="absolute bottom-[15%] left-0 -translate-x-1/3 z-10" data-aos="fade-right" data-aos-delay="500">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="network" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">CONNECT</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Network</p>
+          </div>
+        </div>
+
+        <!-- Node 6: Top Left -->
+        <div class="absolute top-[15%] left-0 -translate-x-1/3 z-10" data-aos="fade-right" data-aos-delay="600">
+          <div class="card p-3 text-center w-32 border-neon/15 hover:border-neon/50 transition-all duration-300 hover:scale-105 flywheel-node-card">
+            <div class="w-9 h-9 mx-auto mb-1.5 rounded-full bg-neon/10 flex items-center justify-center">
+              <i data-lucide="trending-up" class="w-4 h-4 text-neon"></i>
+            </div>
+            <p class="text-white font-bold text-xs">GROW</p>
+            <p class="text-gray-500 text-[10px] mt-0.5">Career</p>
+          </div>
+        </div>
+
+        <!-- Center Hub -->
+        <div class="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-20" data-aos="zoom-in" data-aos-delay="700">
+          <div class="w-16 h-16 rounded-full bg-dark border-2 border-neon/30 flex items-center justify-center animate-pulse-glow">
+            <i data-lucide="cpu" class="w-8 h-8 text-neon"></i>
+          </div>
+        </div>
+
+        <!-- Curved connection arrows -->
+        <svg class="absolute inset-0 w-full h-full pointer-events-none" viewBox="0 0 400 400">
+          <defs>
+            <marker id="arrowhead" markerWidth="6" markerHeight="4" refX="5" refY="2" orient="auto">
+              <polygon points="0 0, 6 2, 0 4" fill="rgba(57,255,20,0.25)"/>
+            </marker>
+          </defs>
+          <path d="M 200 60 Q 280 80 310 140" fill="none" stroke="rgba(57,255,20,0.1)" stroke-width="1" marker-end="url(#arrowhead)"/>
+          <path d="M 340 200 Q 320 280 260 310" fill="none" stroke="rgba(57,255,20,0.1)" stroke-width="1" marker-end="url(#arrowhead)"/>
+          <path d="M 200 340 Q 120 320 90 260" fill="none" stroke="rgba(57,255,20,0.1)" stroke-width="1" marker-end="url(#arrowhead)"/>
+        </svg>
+      </div>
+
+      <!-- Flow Description (both views) -->
+      <div class="flex flex-wrap justify-center gap-3 mt-10 text-gray-500 text-xs font-mono" data-aos="fade-up" data-aos-delay="300">
+        <span class="flex items-center gap-1.5 bg-dark-card border border-dark-border rounded-full px-3 py-1.5">
+          <i data-lucide="arrow-right" class="w-3 h-3 text-neon/50"></i> Learn fuels Build
+        </span>
+        <span class="flex items-center gap-1.5 bg-dark-card border border-dark-border rounded-full px-3 py-1.5">
+          <i data-lucide="arrow-right" class="w-3 h-3 text-neon/50"></i> Build drives Compete
+        </span>
+        <span class="flex items-center gap-1.5 bg-dark-card border border-dark-border rounded-full px-3 py-1.5">
+          <i data-lucide="arrow-right" class="w-3 h-3 text-neon/50"></i> Compete earns Points
+        </span>
+        <span class="flex items-center gap-1.5 bg-dark-card border border-dark-border rounded-full px-3 py-1.5">
+          <i data-lucide="arrow-right" class="w-3 h-3 text-neon/50"></i> Points unlock Growth
+        </span>
+      </div>
+    </div>
+  </section>
+
+  <!-- READY TO CONNECT? -->
+  <section class="py-20 px-4 max-w-7xl mx-auto">
+    <div class="text-center mb-12" data-aos="fade-down">
+      <p class="text-neon font-mono text-xs tracking-widest mb-2 flex items-center justify-center gap-2">
+        <i data-lucide="link" class="w-3 h-3"></i> ◈ GET INVOLVED
+      </p>
+      <h2 class="font-display font-bold text-white text-3xl">READY TO <span class="neon-text">CONNECT</span>?</h2>
+      <p class="text-gray-500 mt-3 max-w-xl mx-auto">There are many ways to be part of the Technophiles ecosystem. Choose your path.</p>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+      <!-- Follow Us -->
+      <a href="/about">
+      <div class="card p-6 group connect-card" data-aos="fade-up" data-aos-delay="0">
+        <div class="w-12 h-12 rounded-lg bg-neon/5 border border-neon/20 flex items-center justify-center mb-4 group-hover:bg-neon/10 transition-all duration-300">
+          <i data-lucide="share-2" class="w-6 h-6 text-neon"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display">Follow Us</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Stay updated with our latest events, projects, and announcements across all social platforms.</p>
+        
+      </div>
+      </a>
+
+      <!-- Join Our Community -->
+      
+      <a href="/dashboard">
+      <div class="card p-6 group connect-card" data-aos="fade-up" data-aos-delay="100">
+        <div class="w-12 h-12 rounded-lg bg-neon/5 border border-neon/20 flex items-center justify-center mb-4 group-hover:bg-neon/10 transition-all duration-300">
+          <i data-lucide="message-circle" class="w-6 h-6 text-neon"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display">Join Our Community</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Connect with 500+ developers, ask questions, share knowledge, and find your next teammate.</p>
+        
+      </div>
+      </a>
+
+      <!-- Partnerships & Business -->
+      <a href="/contact">
+      <div class="card p-6 group connect-card" data-aos="fade-up" data-aos-delay="200">
+        <div class="w-12 h-12 rounded-lg bg-neon/5 border border-neon/20 flex items-center justify-center mb-4 group-hover:bg-neon/10 transition-all duration-300">
+          <i data-lucide="handshake" class="w-6 h-6 text-neon"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display">Partnerships</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Sponsor events, recruit top talent, or collaborate on industry-academia initiatives with us.</p>
+        
+      </div>
+      </a>
+
+      <!-- Newsletter -->
+      <a href="/dashboard">
+      <div class="card p-6 group connect-card" data-aos="fade-up" data-aos-delay="300">
+        <div class="w-12 h-12 rounded-lg bg-neon/5 border border-neon/20 flex items-center justify-center mb-4 group-hover:bg-neon/10 transition-all duration-300">
+          <i data-lucide="newspaper" class="w-6 h-6 text-neon"></i>
+        </div>
+        <h3 class="text-white font-bold text-lg mb-2 group-hover:text-neon transition-colors font-display">Newsletter</h3>
+        <p class="text-gray-500 text-sm leading-relaxed mb-4">Weekly digest of upcoming events, hackathon alerts, and curated learning resources.</p>
+        
+      </div>
+      </a>
+    </div>
+  </section>
+
+  <!-- CTA SECTION -->
+  
+  <section class="py-20 px-4">
+    <div class="max-w-3xl mx-auto text-center card p-12 relative overflow-hidden">
+      <div class="absolute inset-0" style="background: radial-gradient(circle at center, rgba(57,255,20,0.05) 0%, transparent 70%);"></div>
+      <div class="relative">
+        <h2 class="font-display font-black text-white text-4xl mb-4">READY TO <span class="neon-text">BUILD</span>?</h2>
+        <p class="text-gray-400 mb-8">Join Technophiles and be part of a community that builds, learns and grows together.</p>
+        <% if (!currentUser) { %>
+          <a href="/auth/register" class="btn-neon-solid text-base px-10 py-3 font-display tracking-widest">GET STARTED FREE</a>
+        <% } else { %>
+          <a href="/courses" class="btn-neon-solid text-base px-10 py-3 font-display tracking-widest">EXPLORE COURSES</a>
+        <% } %>
+      </div>
+    </div>
+  </section>
+
+</main>
+
+<%- include('partials/footer') %>
+
+<!-- AOS JS -->
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<!-- Lucide Icons -->
+<script src="https://unpkg.com/lucide@latest"></script>
+
+<script>
+  // Initialize AOS
+  AOS.init({
+    duration: 600,
+    easing: 'ease-out-cubic',
+    once: true,
+    offset: 50,
+    delay: 0,
+  });
+
+  // Initialize Lucide Icons
+  lucide.createIcons();
+
+  // Re-create icons after any dynamic content updates
+  document.addEventListener('DOMContentLoaded', function() {
+    lucide.createIcons();
+  });
+</script>
+
+<style>
+  /* ===== CUSTOM ANIMATIONS ===== */
+  
+  @keyframes gridMove {
+    0% { background-position: 0 0; }
+    100% { background-position: 40px 40px; }
+  }
+
+  @keyframes floatOrb {
+    0%, 100% { transform: translateY(0px) scale(1); }
+    50% { transform: translateY(-20px) scale(1.05); }
+  }
+
+  @keyframes bounce-slow {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-10px); }
+  }
+
+  @keyframes glitch {
+    0% { text-shadow: 2px 0 #39ff14, -2px 0 #ff00ff; }
+    25% { text-shadow: -2px 0 #39ff14, 2px 0 #00ffff; }
+    50% { text-shadow: 2px 0 #ff00ff, -2px 0 #39ff14; }
+    75% { text-shadow: -2px 0 #00ffff, 2px 0 #ff00ff; }
+    100% { text-shadow: 2px 0 #39ff14, -2px 0 #ff00ff; }
+  }
+
+  /* Flywheel Animations */
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spin-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  @keyframes orbit {
+    from { transform: rotate(0deg) translateX(180px) rotate(0deg); }
+    to { transform: rotate(360deg) translateX(180px) rotate(-360deg); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(57,255,20,0.2); }
+    50% { box-shadow: 0 0 40px rgba(57,255,20,0.4), 0 0 60px rgba(57,255,20,0.1); }
+  }
+
+  @keyframes float-node {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-6px); }
+  }
+
+  .animate-bounce-slow {
+    animation: bounce-slow 3s ease-in-out infinite;
+  }
+
+  .glitch-text {
+    position: relative;
+  }
+  .glitch-text:hover {
+    animation: glitch 0.3s ease-in-out;
+  }
+
+  .orb-glow {
+    pointer-events: none;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+  }
+
+  /* Flywheel Styles */
+  .flywheel-ring {
+    animation: spin-slow 60s linear infinite;
+  }
+
+  .flywheel-gear {
+    animation: spin-reverse 30s linear infinite;
+  }
+
+  .orbit-dot {
+    transform-origin: center;
+  }
+
+  .orbit-1 { animation: orbit 8s linear infinite; }
+  .orbit-2 { animation: orbit 8s linear infinite 2s; }
+  .orbit-3 { animation: orbit 8s linear infinite 4s; }
+  .orbit-4 { animation: orbit 8s linear infinite 6s; }
+
+  .flywheel-node {
+    position: absolute;
+    transition: all 0.3s ease;
+  }
+
+  .flywheel-node:hover {
+    transform: scale(1.08) !important;
+    z-index: 20;
+  }
+
+  /* Position nodes in a circle */
+  .node-1 { top: 0; left: 50%; transform: translateX(-50%); animation: float-node 4s ease-in-out infinite; }
+  .node-2 { top: 25%; right: 0; transform: translateX(30%); animation: float-node 4s ease-in-out infinite 0.5s; }
+  .node-3 { bottom: 25%; right: 0; transform: translateX(30%); animation: float-node 4s ease-in-out infinite 1s; }
+  .node-4 { bottom: 0; left: 50%; transform: translateX(-50%); animation: float-node 4s ease-in-out infinite 1.5s; }
+  .node-5 { bottom: 25%; left: 0; transform: translateX(-30%); animation: float-node 4s ease-in-out infinite 2s; }
+  .node-6 { top: 25%; left: 0; transform: translateX(-30%); animation: float-node 4s ease-in-out infinite 2.5s; }
+
+  /* Stat Card Hover */
+  .stat-card {
+    transition: all 0.3s ease;
+  }
+  .stat-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(57, 255, 20, 0.3);
+    box-shadow: 0 10px 30px -10px rgba(57, 255, 20, 0.1);
+  }
+  .stat-card:hover .stat-icon {
+    transform: scale(1.2);
+  }
+  .stat-icon {
+    transition: transform 0.3s ease;
+  }
+
+  /* Event Card Hover */
+  .event-card {
+    transition: all 0.3s ease;
+  }
+  .event-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -15px rgba(57, 255, 20, 0.08);
+  }
+
+  /* Hackathon Card Hover */
+  .hackathon-card {
+    transition: all 0.3s ease;
+  }
+  .hackathon-card:hover {
+    transform: translateY(-4px);
+  }
+  .hackathon-card:hover .icon-box {
+    background: rgba(57, 255, 20, 0.15);
+    transform: rotate(5deg) scale(1.1);
+  }
+  .icon-box {
+    transition: all 0.3s ease;
+  }
+
+  /* Project Card Hover */
+  .project-card {
+    transition: all 0.3s ease;
+  }
+  .project-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 20px 40px -15px rgba(57, 255, 20, 0.08);
+  }
+
+  /* Quick Link Hover */
+  .quick-link {
+    transition: all 0.3s ease;
+  }
+  .quick-link:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 20px -10px rgba(57, 255, 20, 0.1);
+  }
+
+  /* Feature Card Hover */
+  .feature-card {
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+  .feature-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px -15px rgba(57, 255, 20, 0.1);
+    border-color: rgba(57, 255, 20, 0.3);
+  }
+  .feature-card:hover .feature-icon {
+    transform: scale(1.15) rotate(-5deg);
+  }
+  .feature-icon-box {
+    transition: all 0.3s ease;
+  }
+  .feature-card:hover .feature-icon-box {
+    background: rgba(57, 255, 20, 0.1);
+  }
+
+  /* Connect Card Hover */
+  .connect-card {
+    transition: all 0.3s ease;
+  }
+  .connect-card:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px -15px rgba(57, 255, 20, 0.08);
+    border-color: rgba(57, 255, 20, 0.3);
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* AOS visibility fix */
+  [data-aos] {
+    visibility: hidden;
+  }
+  [data-aos].aos-animate {
+    visibility: visible;
+  }
+
+  /* Responsive flywheel adjustments */
+  @media (max-width: 768px) {
+    .flywheel-node {
+      position: relative !important;
+      top: auto !important;
+      left: auto !important;
+      right: auto !important;
+      bottom: auto !important;
+      transform: none !important;
+      margin: 0 auto 1rem;
+      animation: none !important;
+    }
+    .flywheel-ring, .flywheel-gear {
+      display: none;
+    }
+  }
+
+    /* ===== FLYWHEEL RESPONSIVE STYLES ===== */
+  
+  @keyframes spin-slow {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+  }
+
+  @keyframes spin-reverse {
+    from { transform: rotate(360deg); }
+    to { transform: rotate(0deg); }
+  }
+
+  @keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(57,255,20,0.15); }
+    50% { box-shadow: 0 0 35px rgba(57,255,20,0.35), 0 0 60px rgba(57,255,20,0.1); }
+  }
+
+  .flywheel-ring {
+    animation: spin-slow 50s linear infinite;
+  }
+
+  .flywheel-gear {
+    animation: spin-reverse 25s linear infinite;
+  }
+
+  .animate-pulse-glow {
+    animation: pulse-glow 2.5s ease-in-out infinite;
+  }
+
+  .animate-spin-slow {
+    animation: spin-slow 4s linear infinite;
+  }
+
+  .flywheel-node-card {
+    backdrop-filter: blur(4px);
+  }
+
+  /* Orbit particles animation */
+  .orbit-particle {
+    transform-origin: 200px 200px;
+    animation: spin-slow 12s linear infinite;
+  }
+  .orbit-particle-sm {
+    transform-origin: 200px 200px;
+    animation: spin-reverse 18s linear infinite;
+  }
+
+  /* Mobile connector line animation */
+  @keyframes connectorPulse {
+    0%, 100% { opacity: 0.4; }
+    50% { opacity: 1; }
+  }
+
+  /* Ensure mobile view is clean and readable */
+  @media (max-width: 768px) {
+    .flywheel-wrapper {
+      padding: 0 0.5rem;
+    }
+  }
+</style>

@@ -1,0 +1,95 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/roadmaps" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-8"><%= roadmap?._id ? 'EDIT ROADMAP' : 'CREATE ROADMAP' %></h1>
+    <% if (typeof error !== 'undefined' && error) { %><div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ <%= error %></div><% } %>
+    <form action="<%= roadmap?._id ? '/roadmaps/'+roadmap._id+'?_method=PUT' : '/roadmaps' %>" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">ROADMAP TITLE *</label>
+        <input type="text" name="title" required value="<%= roadmap?.title||'' %>" placeholder="Full Stack Web Developer" class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DESCRIPTION</label>
+        <textarea name="description" rows="3" placeholder="What will learners achieve..." class="input-dark resize-none text-sm"><%= roadmap?.description||'' %></textarea>
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">CATEGORY</label>
+          <input type="text" name="category" value="<%= roadmap?.category||'' %>" placeholder="Web Dev, DSA, AI..." class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">ICON (EMOJI)</label>
+          <input type="text" name="icon" value="<%= roadmap?.icon||'' %>" placeholder="🌐" class="input-dark text-sm text-2xl" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">ACCENT COLOR</label>
+          <input type="color" name="color" value="<%= roadmap?.color||'#39FF14' %>" class="input-dark text-sm h-10 cursor-pointer" />
+        </div>
+      </div>
+
+      <!-- Steps -->
+      <div class="pt-4 border-t border-dark-border">
+        <div class="flex items-center justify-between mb-4">
+          <h2 class="font-display text-white font-bold text-sm tracking-widest">ROADMAP STEPS</h2>
+          <button type="button" onclick="addStep()" class="btn-neon text-xs px-4 py-1.5">+ ADD STEP</button>
+        </div>
+        <div id="steps-container" class="space-y-4">
+          <% const steps = roadmap?.steps?.length ? roadmap.steps : []; %>
+          <% steps.forEach((step, i) => { %>
+          <div class="card p-4 step-row">
+            <div class="flex items-center justify-between mb-3">
+              <span class="text-neon font-mono text-xs">STEP <%= i+1 %></span>
+              <button type="button" onclick="this.closest('.step-row').remove()" class="text-red-400 text-xs hover:text-red-300 font-mono">REMOVE</button>
+            </div>
+            <div class="grid grid-cols-1 gap-3">
+              <input type="text" name="step_title" value="<%= step.title %>" placeholder="Step title..." required class="input-dark text-sm" />
+              <textarea name="step_desc" rows="2" placeholder="Description (optional)..." class="input-dark text-sm resize-none"><%= step.description||'' %></textarea>
+              <select name="step_course" class="input-dark text-sm">
+                <option value="">No linked course</option>
+                <% courses.forEach(c => { %>
+                <option value="<%= c._id %>" <%= step.course?._id?.toString()===c._id.toString()||step.course?.toString()===c._id.toString() ? 'selected' : '' %>><%= c.title %></option>
+                <% }) %>
+              </select>
+            </div>
+          </div>
+          <% }) %>
+        </div>
+        <% if (!steps.length) { %>
+        <p class="text-gray-600 text-sm text-center py-4" id="empty-steps">No steps added yet. Click "ADD STEP" to begin.</p>
+        <% } %>
+      </div>
+
+      <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm"><%= roadmap?._id ? 'UPDATE' : 'CREATE' %> ROADMAP</button>
+    </form>
+  </div>
+</main>
+<script>
+let stepCount = <%= roadmap?.steps?.length || 0 %>;
+const courses = <%- JSON.stringify(courses.map(c => ({id:c._id,title:c.title}))) %>;
+
+function addStep() {
+  stepCount++;
+  document.getElementById('empty-steps')?.remove();
+  const div = document.createElement('div');
+  div.className = 'card p-4 step-row';
+  div.innerHTML = `
+    <div class="flex items-center justify-between mb-3">
+      <span class="text-neon font-mono text-xs">STEP ${stepCount}</span>
+      <button type="button" onclick="this.closest('.step-row').remove()" class="text-red-400 text-xs hover:text-red-300 font-mono">REMOVE</button>
+    </div>
+    <div class="grid grid-cols-1 gap-3">
+      <input type="text" name="step_title" placeholder="Step title..." required class="input-dark text-sm" />
+      <textarea name="step_desc" rows="2" placeholder="Description (optional)..." class="input-dark text-sm resize-none"></textarea>
+      <select name="step_course" class="input-dark text-sm">
+        <option value="">No linked course</option>
+        ${courses.map(c => `<option value="${c.id}">${c.title}</option>`).join('')}
+      </select>
+    </div>
+  `;
+  document.getElementById('steps-container').appendChild(div);
+}
+</script>
+<%- include('../partials/footer') %>

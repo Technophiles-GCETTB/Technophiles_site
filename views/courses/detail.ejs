@@ -1,0 +1,106 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/courses" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="grid grid-cols-1 lg:grid-cols-3 gap-4">
+    <div class="lg:col-span-2 space-y-6">
+      <div class="card p-8 relative overflow-hidden">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <div class="flex flex-wrap gap-2 mb-4">
+          <span class="badge badge-neon"><%= course.category.replace('_',' ') %></span>
+          <span class="badge badge-gray"><%= course.level %></span>
+          <% if (course.isFree) { %><span class="badge badge-neon">FREE</span><% } %>
+        </div>
+        <h1 class="font-display font-bold text-white text-3xl mb-4"><%= course.title %></h1>
+        <p class="text-gray-400 leading-relaxed whitespace-pre-line"><%= course.description %></p>
+        <% if (course.tags?.length) { %>
+        <div class="flex flex-wrap gap-2 mt-4"><% course.tags.forEach(t => { %><span class="badge badge-gray">#<%= t %></span><% }) %></div>
+        <% } %>
+      </div>
+      <!-- Learning Outcomes -->
+      <% if (course.learningOutcomes?.length) { %>
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">WHAT YOU'LL LEARN</h2>
+        <ul class="grid grid-cols-1 sm:grid-cols-2 gap-2">
+          <% course.learningOutcomes.forEach(outcome => { %>
+          <li class="flex gap-2 text-sm text-gray-400"><span class="text-neon mt-0.5">✓</span><span><%= outcome %></span></li>
+          <% }) %>
+        </ul>
+      </div>
+      <% } %>
+      <!-- Modules -->
+      <div class="card p-6">
+        <h2 class="font-display text-white font-bold text-sm tracking-widest mb-4">COURSE CONTENT (<%= modules.length %> modules)</h2>
+        <% if (modules.length === 0) { %>
+          <p class="text-gray-500 text-sm">No modules added yet</p>
+        <% } else { %>
+        <div class="space-y-2">
+          <% modules.forEach((mod, i) => { %>
+          <div class="flex items-center gap-3 p-3 rounded hover:bg-dark-hover transition-colors">
+            <span class="text-gray-600 font-mono text-xs w-6"><%= String(i+1).padStart(2,'0') %></span>
+            <span class="text-lg"><%= mod.type==='video'?'🎥':mod.type==='article'?'📄':mod.type==='quiz'?'🧠':'📌' %></span>
+            <div class="flex-1">
+              <p class="text-white text-sm"><%= mod.title %></p>
+              <% if (mod.content?.duration) { %><p class="text-xs text-gray-500"><%= mod.content.duration %> min</p><% } %>
+            </div>
+            <% if (progress?.completedModules?.includes(mod._id)) { %>
+              <span class="text-neon text-xs">✓</span>
+            <% } else if (mod.isPreview || isEnrolled) { %>
+              <span class="text-gray-600 text-xs font-mono"><%= mod.pointsReward %>pt</span>
+            <% } else { %>
+              <span class="text-gray-600 text-xs">🔒</span>
+            <% } %>
+          </div>
+          <% }) %>
+        </div>
+        <% } %>
+      </div>
+    </div>
+    <!-- Sidebar -->
+    <div class="space-y-4">
+      <div class="card p-6">
+        <div class="space-y-3 mb-6 text-sm">
+          <div class="flex justify-between"><span class="text-gray-500">Modules</span><span class="text-white font-mono"><%= modules.length %></span></div>
+          <% if (course.estimatedDuration) { %><div class="flex justify-between"><span class="text-gray-500">Duration</span><span class="text-white font-mono"><%= course.estimatedDuration %>h</span></div><% } %>
+          <div class="flex justify-between"><span class="text-gray-500">Enrolled</span><span class="text-white font-mono"><%= course.enrolledCount %></span></div>
+          <div class="flex justify-between"><span class="text-gray-500">Points</span><span class="text-neon font-mono font-bold">+<%= course.pointsReward %></span></div>
+        </div>
+        <% if (!currentUser) { %>
+          <a href="/auth/login" class="btn-neon-solid w-full text-sm py-3 block text-center">LOGIN TO ENROLL</a>
+        <% } else if (currentUser.role === 'external' && course.accessLevel === 'internal_only') { %>
+          <p class="text-gray-500 text-center text-sm py-2">Available for internal students only</p>
+        <% } else if (isEnrolled) { %>
+          <a href="/courses/<%= course._id %>/learn" class="btn-neon-solid w-full text-sm py-3 block text-center">CONTINUE LEARNING</a>
+          <% if (progress) { %>
+          <div class="mt-3"><div class="progress-bar"><div class="progress-fill" style="width:<%= progress.progressPercent %>%"></div></div><p class="text-xs text-gray-500 text-center mt-1"><%= progress.progressPercent %>% complete</p></div>
+          <% if (progress.isCompleted) { %>
+          <a href="/certificates/course/<%= course._id %>" class="btn-neon w-full text-sm py-2 block text-center mt-2">⬇ DOWNLOAD CERTIFICATE</a>
+          <% } %>
+          <% } %>
+        <% } else { %>
+          <form action="/courses/<%= course._id %>/enroll" method="POST">
+            <button type="submit" class="btn-neon-solid w-full text-sm py-3">ENROLL FREE</button>
+          </form>
+        <% } %>
+      </div>
+      <!-- Prerequisites -->
+      <% if (course.prerequisites?.length) { %>
+      <div class="card p-5">
+        <h3 class="font-display text-white text-xs font-bold tracking-widest mb-3">PREREQUISITES</h3>
+        <ul class="space-y-1"><% course.prerequisites.forEach(p => { %><li class="text-gray-400 text-sm flex gap-2"><span class="text-neon">→</span><%= p %></li><% }) %></ul>
+      </div>
+      <% } %>
+      <!-- Admin controls -->
+      <% if (currentUser && ['superadmin','admin'].includes(currentUser.role)) { %>
+      <div class="card p-4 space-y-2 border-neon/20">
+        <p class="text-neon font-mono text-xs tracking-widest font-bold mb-2">ADMIN</p>
+        <a href="/courses/<%= course._id %>/edit" class="sidebar-link text-sm">⚙ Edit Course & Modules</a>
+        <form action="/courses/<%= course._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete this course?')">
+          <button type="submit" class="sidebar-link text-sm text-red-400 w-full text-left">🗑 Delete Course</button>
+        </form>
+      </div>
+      <% } %>
+    </div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

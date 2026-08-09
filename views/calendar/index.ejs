@@ -1,0 +1,82 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ALL DATES</p>
+      <h1 class="font-display font-bold text-white text-2xl">EVENT CALENDAR</h1>
+    </div>
+    <div class="flex flex-wrap gap-1.5 text-xs font-mono">
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded inline-block" style="background:#39FF14"></span> Events</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded inline-block" style="background:#7c3aed"></span> Hackathons</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded inline-block" style="background:#f59e0b"></span> Deadlines</span>
+      <span class="flex items-center gap-1"><span class="w-3 h-3 rounded inline-block" style="background:#ef4444"></span> Live Classes</span>
+    </div>
+  </div>
+
+  <div class="card p-2 sm:p-4 md:p-6" id="calendar-wrapper">
+    <div id="calendar"></div>
+  </div>
+
+  <!-- Event detail popup -->
+  <div id="event-modal" class="hidden fixed inset-0 bg-black/70 flex items-center justify-center z-50 p-4" onclick="closeModal()">
+    <div class="card p-6 max-w-sm w-full" onclick="event.stopPropagation()">
+      <div id="modal-badge" class="badge mb-3 text-xs"></div>
+      <h3 id="modal-title" class="text-white font-bold text-xl mb-2"></h3>
+      <p id="modal-time" class="text-gray-400 text-sm font-mono mb-4"></p>
+      <a id="modal-link" href="#" class="btn-neon-solid text-sm px-6 py-2 inline-block">VIEW DETAILS →</a>
+      <button onclick="closeModal()" class="btn-neon text-sm px-6 py-2 ml-2">CLOSE</button>
+    </div>
+  </div>
+</main>
+
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js"></script>
+<style>
+  .fc { color: #ccc; }
+  .fc-toolbar-title { color: #fff; font-family: 'Orbitron', sans-serif; font-size: 1rem !important; letter-spacing: 2px; }
+  .fc-button { background: transparent !important; border: 1px solid #39FF14 !important; color: #39FF14 !important; font-family: 'Rajdhani', sans-serif !important; font-size: 12px !important; letter-spacing: 1px !important; transition: all 0.2s !important; }
+  .fc-button:hover, .fc-button-active { background: #39FF14 !important; color: #000 !important; }
+  .fc-daygrid-day { background: #0a0a0a; border-color: #1a1a1a !important; }
+  .fc-daygrid-day:hover { background: #111; }
+  .fc-col-header-cell { background: #0a0a0a; color: #39FF14; font-family: 'Orbitron', sans-serif; font-size: 10px; letter-spacing: 2px; border-color: #1a1a1a !important; }
+  .fc-day-today { background: rgba(57,255,20,0.04) !important; }
+  .fc-event { cursor: pointer; font-size: 11px; font-family: 'Rajdhani', sans-serif; font-weight: 600; padding: 2px 4px; border: none !important; }
+  .fc-scrollgrid { border-color: #1a1a1a !important; }
+  .fc-scrollgrid-section > * { border-color: #1a1a1a !important; }
+  .fc-daygrid-day-number { color: #666; font-family: 'Share Tech Mono', monospace; font-size: 11px; }
+  .fc-day-today .fc-daygrid-day-number { color: #39FF14 !important; }
+</style>
+<script>
+const calData = <%- calItemsJSON %>;
+
+document.addEventListener('DOMContentLoaded', () => {
+  const cal = new FullCalendar.Calendar(document.getElementById('calendar'), {
+    initialView: 'dayGridMonth',
+    headerToolbar: { left: 'prev,next today', center: 'title', right: 'dayGridMonth,listMonth' },
+    events: calData,
+    height: 'auto',
+    eventClick: (info) => {
+      info.jsEvent.preventDefault();
+      const e = info.event;
+      document.getElementById('modal-title').textContent = e.title;
+      document.getElementById('modal-link').href = e.url || '#';
+      const start = e.start ? new Date(e.start).toLocaleString('en-IN', { day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' }) : '';
+      document.getElementById('modal-time').textContent = start;
+      const type = e.extendedProps.type;
+      const badge = document.getElementById('modal-badge');
+      badge.textContent = type?.replace('_', ' ').toUpperCase() || 'EVENT';
+      badge.className = 'badge mb-3 text-xs ' + (type === 'hackathon' ? 'badge-purple' : type === 'live' ? 'badge-red' : type === 'deadline' ? 'badge-yellow' : 'badge-neon');
+      document.getElementById('event-modal').classList.remove('hidden');
+    },
+    dayMaxEvents: 3,
+    moreLinkContent: (args) => `+${args.num} more`,
+  });
+  cal.render();
+});
+
+function closeModal() {
+  document.getElementById('event-modal').classList.add('hidden');
+}
+</script>
+<%- include('../partials/footer') %>

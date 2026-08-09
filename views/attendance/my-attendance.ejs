@@ -1,0 +1,62 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-4xl mx-auto">
+  <div class="mb-8">
+    <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ MY RECORD</p>
+    <h1 class="font-display font-bold text-white text-2xl">ATTENDANCE</h1>
+  </div>
+  <!-- Summary -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4 mb-8">
+    <div class="card p-5 text-center">
+      <p class="text-3xl font-display font-black text-white"><%= attended %></p>
+      <p class="text-xs text-gray-500 font-mono mt-1">ATTENDED</p>
+    </div>
+    <div class="card p-5 text-center">
+      <p class="text-3xl font-display font-black text-white"><%= total %></p>
+      <p class="text-xs text-gray-500 font-mono mt-1">REGISTERED</p>
+    </div>
+    <div class="card p-5 text-center border-2 <%= percentage >= 75 ? 'border-neon/30' : percentage >= 50 ? 'border-yellow-500/30' : 'border-red-500/30' %>">
+      <p class="text-3xl font-display font-black <%= percentage >= 75 ? 'neon-text' : percentage >= 50 ? 'text-yellow-400' : 'text-red-400' %>"><%= percentage %>%</p>
+      <p class="text-xs text-gray-500 font-mono mt-1">ATTENDANCE RATE</p>
+    </div>
+  </div>
+  <!-- Progress bar -->
+  <div class="card p-4 mb-8">
+    <div class="flex justify-between text-xs text-gray-500 font-mono mb-2">
+      <span>ATTENDANCE RATE</span>
+      <span><%= percentage %>%</span>
+    </div>
+    <div class="progress-bar h-3">
+      <div class="progress-fill h-3" style="width:<%= percentage %>%;background:<%= percentage>=75?'linear-gradient(90deg,#39FF14,#00ff88)':percentage>=50?'linear-gradient(90deg,#ffd700,#ffaa00)':'linear-gradient(90deg,#ff5555,#ff0000)' %>"></div>
+    </div>
+    <p class="text-xs text-gray-600 mt-2"><%= percentage >= 75 ? '✅ Good attendance!' : percentage >= 50 ? '⚠ Attendance could be better' : '❌ Low attendance — try to attend more events' %></p>
+  </div>
+  <!-- Records -->
+  <div class="card overflow-hidden">
+    <div class="p-4 border-b border-dark-border">
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">ATTENDANCE HISTORY</h2>
+    </div>
+    <% if (records.length === 0) { %>
+    <div class="p-8 text-center"><p class="text-gray-500">No attendance records yet. Register for events and attend!</p></div>
+    <% } else { %>
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Event</th><th>Type</th><th>Date Attended</th><th>Method</th><th>Points</th><th>Cert</th></tr></thead>
+      <tbody>
+        <% records.forEach(r => { %>
+        <tr>
+          <td class="text-white font-semibold"><%= r.event?.title||'Unknown Event' %></td>
+          <td><span class="badge badge-gray text-xs"><%= r.event?.type||'—' %></span></td>
+          <td class="text-gray-500 text-xs font-mono"><%= new Date(r.markedAt).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) %></td>
+          <td><span class="badge badge-gray text-xs"><%= r.method %></span></td>
+          <td class="text-neon font-mono font-bold">+<%= r.event?.pointsReward||0 %></td>
+          <td>
+            <a href="/certificates/event/<%= r.event?._id %>" class="text-xs text-neon hover:underline font-mono">⬇ CERT</a>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

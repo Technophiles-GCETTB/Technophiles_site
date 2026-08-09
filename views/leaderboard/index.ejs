@@ -1,0 +1,94 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-4xl mx-auto">
+  <div class="text-center mb-10">
+    <p class="text-neon font-mono text-xs tracking-widest mb-2">◈ RANKINGS</p>
+    <h1 class="font-display font-black text-white text-4xl">LEADERBOARD</h1>
+    <% if (myRank) { %>
+    <div class="mt-4 inline-flex items-center gap-3 px-5 py-2 border border-neon/30 rounded bg-neon/5">
+      <span class="text-gray-400 text-sm">Your rank:</span>
+      <span class="text-neon font-display font-black text-2xl">#<%= myRank %></span>
+      <span class="text-gray-400 text-sm">with</span>
+      <span class="text-neon font-mono font-bold"><%= user.points %> pts</span>
+    </div>
+    <% } %>
+  </div>
+
+  <!-- Filter -->
+  <div class="flex gap-2 justify-center mb-8">
+    <a href="/leaderboard?filter=all" class="badge <%= filter!=='internal'?'badge-neon':'badge-gray' %> cursor-pointer px-4 py-2">ALL USERS</a>
+    <a href="/leaderboard?filter=internal" class="badge <%= filter==='internal'?'badge-neon':'badge-gray' %> cursor-pointer px-4 py-2">INTERNAL ONLY</a>
+  </div>
+
+  <!-- Badge Legend -->
+  <div class="flex flex-wrap gap-2 justify-center mb-8">
+    <% badges.forEach(b => { %>
+    <div class="flex items-center gap-1 card px-3 py-1">
+      <span><%= b.icon %></span>
+      <span class="text-xs text-gray-400 font-mono"><%= b.name %> (<%= b.minPoints %>+ pts)</span>
+    </div>
+    <% }) %>
+  </div>
+
+  <!-- Top 3 podium -->
+  <% if (leaders.length >= 3) { %>
+  <div class="flex items-end justify-center gap-2 sm:gap-4 mb-8 sm:mb-10">
+    <% [[1,'🥈',leaders[1],'h-24'],[0,'🥇',leaders[0],'h-32'],[2,'🥉',leaders[2],'h-16']].forEach(([pos,medal,leader,height]) => { %>
+    <% if (leader) { %>
+    <div class="text-center flex flex-col items-center">
+      <img src="<%= leader.avatar||'/images/default-avatar.png' %>" class="w-14 h-14 rounded-full border-2 <%= pos===0?'border-yellow-400':'border-gray-500' %> mb-2" onerror="this.src='/images/default-avatar.png'">
+      <p class="text-white text-sm font-bold max-w-[80px] truncate"><%= leader.name.split(' ')[0] %></p>
+      <p class="text-neon font-mono text-xs"><%= leader.points %></p>
+      <div class="w-20 <%= height %> mt-2 flex items-center justify-center text-2xl rounded-t-lg border-t border-l border-r <%= pos===0?'border-yellow-500/50 bg-yellow-500/10':'border-dark-border bg-dark-card' %>">
+        <%= medal %>
+      </div>
+    </div>
+    <% } %>
+    <% }) %>
+  </div>
+  <% } %>
+
+  <!-- Full leaderboard table -->
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Rank</th><th>User</th><th class="hidden sm:table-cell">Role</th><th>Points</th><th class="hidden md:table-cell">Badges</th></tr></thead>
+      <tbody>
+        <% leaders.forEach(leader => { %>
+        <tr class="<%= user && leader._id?.toString()===user._id?.toString() ? 'bg-neon/5' : '' %>">
+          <td>
+            <span class="font-display font-black text-lg
+              <%= leader.rank===1?'text-yellow-400':leader.rank===2?'text-gray-300':leader.rank===3?'text-orange-500':'text-gray-500' %>">
+              <%= leader.rank<=3 ? ['🥇','🥈','🥉'][leader.rank-1] : '#'+leader.rank %>
+            </span>
+          </td>
+          <td>
+            <div class="flex items-center gap-3">
+              <img src="<%= leader.avatar||'/images/default-avatar.png' %>" class="w-9 h-9 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <div>
+                <p class="text-white font-semibold text-sm"><%= leader.name %></p>
+                <p class="text-gray-500 text-xs"><%= leader.college||'' %> <%= leader.branch ? '· '+leader.branch : '' %></p>
+              </div>
+              <% if (user && leader._id?.toString()===user._id?.toString()) { %><span class="badge badge-neon text-xs">YOU</span><% } %>
+            </div>
+          </td>
+          <td><span class="badge badge-gray text-xs"><%= leader.role %></span></td>
+          <td><span class="text-neon font-display font-black text-lg"><%= leader.points %></span></td>
+          <td>
+            <%
+              const pts = leader.points;
+              let badge = '';
+              if (pts >= 2000) badge = '👑';
+              else if (pts >= 1000) badge = '💎';
+              else if (pts >= 500) badge = '🥇';
+              else if (pts >= 200) badge = '🥈';
+              else if (pts >= 50) badge = '🥉';
+            %>
+            <span class="text-lg"><%= badge %></span>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

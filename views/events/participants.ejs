@@ -1,0 +1,69 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/events/<%= event._id %>" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK TO EVENT</a></div>
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ <%= event.title.toUpperCase() %></p>
+      <h1 class="font-display font-bold text-white text-xl">PARTICIPANTS (<%= event.participants.length %>)</h1>
+    </div>
+    <div class="flex gap-2">
+      <% if (event.qrCodeImage) { %>
+      <button onclick="document.getElementById('qr-modal').classList.remove('hidden')" class="btn-neon text-sm">SHOW QR</button>
+      <% } %>
+    </div>
+  </div>
+  <!-- Manual Mark Form -->
+  <div class="card p-4 mb-6">
+    <h3 class="font-display text-white text-xs font-bold tracking-widest mb-3">MANUAL ATTENDANCE</h3>
+    <form action="/attendance/manual" method="POST" class="flex gap-3">
+      <input type="hidden" name="eventId" value="<%= event._id %>" />
+      <input type="text" name="userId" placeholder="User ID or search..." class="input-dark text-sm flex-1" id="user-search" />
+      <button type="submit" class="btn-neon-solid text-sm px-6">MARK</button>
+    </form>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Participant</th><th>Email</th><th>Branch / Year</th><th>Registered</th><th>Attendance</th></tr></thead>
+      <tbody>
+        <% event.participants.forEach((p, i) => { %>
+        <% if (p.user) { %>
+        <tr>
+          <td>
+            <div class="flex items-center gap-3">
+              <img src="<%= p.user.avatar||'/images/default-avatar.png' %>" class="w-8 h-8 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <span class="text-white font-semibold"><%= p.user.name %></span>
+            </div>
+          </td>
+          <td class="text-gray-400 text-xs"><%= p.user.email %></td>
+          <td class="text-gray-400 text-xs"><%= p.user.branch||'—' %> <%= p.user.year ? 'Y'+p.user.year : '' %></td>
+          <td class="text-gray-500 text-xs font-mono"><%= new Date(p.registeredAt).toLocaleDateString() %></td>
+          <td>
+            <% if (p.attended) { %>
+              <span class="badge badge-neon">✓ PRESENT</span>
+            <% } else { %>
+              <form action="/attendance/manual" method="POST" class="inline">
+                <input type="hidden" name="eventId" value="<%= event._id %>" />
+                <input type="hidden" name="userId" value="<%= p.user._id %>" />
+                <button type="submit" class="badge badge-gray cursor-pointer hover:badge-neon transition-all">MARK</button>
+              </form>
+            <% } %>
+          </td>
+        </tr>
+        <% } %>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+</main>
+
+<!-- QR Modal -->
+<div id="qr-modal" class="hidden fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4" onclick="this.classList.add('hidden')">
+  <div class="card p-8 text-center" onclick="event.stopPropagation()">
+    <h3 class="font-display text-neon font-bold tracking-widest mb-4">ATTENDANCE QR CODE</h3>
+    <img src="<%= event.qrCodeImage %>" alt="QR" class="w-56 h-56 mx-auto border-2 border-neon rounded bg-white p-2">
+    <p class="text-gray-500 text-xs font-mono mt-4">Participants scan to mark attendance</p>
+    <button onclick="document.getElementById('qr-modal').classList.add('hidden')" class="btn-neon text-sm mt-4">CLOSE</button>
+  </div>
+</div>
+<%- include('../partials/footer') %>

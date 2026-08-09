@@ -1,0 +1,162 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-4xl mx-auto">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ SUPERADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">SEO & BRANDING</h1>
+    </div>
+    <a href="/admin" class="btn-neon text-sm">← DASHBOARD</a>
+  </div>
+
+  <!-- Flash messages -->
+  <% if (query?.msg === 'saved') { %><div class="bg-neon/10 border border-neon/30 text-neon px-4 py-3 rounded text-sm mb-6">✅ Settings saved successfully!</div><% } %>
+  <% if (query?.msg === 'logos_saved') { %><div class="bg-neon/10 border border-neon/30 text-neon px-4 py-3 rounded text-sm mb-6">✅ Logos updated!</div><% } %>
+  <% if (query?.error) { %><div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">❌ Error saving settings.</div><% } %>
+
+  <div class="space-y-6">
+
+    <!-- ─── LOGOS ─────────────────────────────────────────────────────────── -->
+    <div class="card p-6">
+      <h2 class="font-display text-neon text-xs font-bold tracking-widest mb-5">CLUB LOGOS</h2>
+      <p class="text-gray-400 text-sm mb-5 leading-relaxed">
+        Upload your logos to Google Drive or Imgur and paste the <strong class="text-white">direct image URL</strong> below.
+        <br><span class="text-neon text-xs font-mono">Google Drive tip:</span> <span class="text-gray-500 text-xs">Share → Anyone with link → change URL to: drive.google.com/uc?export=view&id=FILE_ID</span>
+      </p>
+
+      <!-- Live Preview -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-5">
+        <div class="card p-4 text-center">
+          <p class="text-xs text-gray-500 font-mono mb-3">NAVBAR LOGO PREVIEW</p>
+          <div class="h-16 flex items-center justify-center bg-black border border-dark-border rounded">
+            <% if (settings.logoNavUrl) { %>
+            <img id="prev-nav" src="<%= settings.logoNavUrl %>" class="h-8 w-auto object-contain max-w-[160px]" onerror="this.src=''">
+            <% } else { %>
+            <div class="flex items-center gap-2">
+              <div class="w-8 h-8 border border-neon flex items-center justify-center rounded"><span class="text-neon font-display font-black text-xs">T</span></div>
+              <span class="font-display font-bold text-white text-xs tracking-widest">TECHNOPHILES</span>
+            </div>
+            <% } %>
+          </div>
+          <p class="text-xs text-gray-600 mt-2">Appears in navigation bar (max height: 32px)</p>
+        </div>
+        <div class="card p-4 text-center">
+          <p class="text-xs text-gray-500 font-mono mb-3">FAVICON PREVIEW</p>
+          <div class="h-16 flex items-center justify-center gap-6">
+            <% if (settings.logoFaviconUrl) { %>
+            <img id="prev-fav" src="<%= settings.logoFaviconUrl %>" class="w-8 h-8 object-contain rounded" onerror="this.src=''">
+            <img src="<%= settings.logoFaviconUrl %>" class="w-16 h-16 object-contain rounded" onerror="">
+            <% } else { %>
+            <img src="/icons/icon-96.svg" class="w-8 h-8">
+            <img src="/icons/icon-96.svg" class="w-16 h-16">
+            <% } %>
+          </div>
+          <p class="text-xs text-gray-600 mt-2">Browser tab icon and PWA icon</p>
+        </div>
+      </div>
+
+      <form action="/admin/settings/logos" method="POST" class="space-y-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">NAVBAR LOGO URL <span class="text-gray-600">(landscape image recommended, e.g. 200×60px)</span></label>
+          <input type="url" name="logoNavUrl" id="nav-url-input" value="<%= settings.logoNavUrl || '' %>" placeholder="https://drive.google.com/uc?export=view&id=..." class="input-dark text-sm" oninput="previewLogo(this.value, 'prev-nav')" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">FAVICON / ICON URL <span class="text-gray-600">(square image, e.g. 512×512px PNG/SVG)</span></label>
+          <input type="url" name="logoFaviconUrl" id="fav-url-input" value="<%= settings.logoFaviconUrl || '' %>" placeholder="https://drive.google.com/uc?export=view&id=..." class="input-dark text-sm" oninput="previewLogo(this.value, 'prev-fav')" />
+        </div>
+        <div class="p-3 bg-dark-hover rounded border border-dark-border text-xs text-gray-500">
+          <p class="text-gray-300 font-semibold mb-1">How to get a direct image URL from Google Drive:</p>
+          <ol class="space-y-1 list-decimal list-inside">
+            <li>Upload image to Google Drive</li>
+            <li>Right-click → Share → Change to "Anyone with the link"</li>
+            <li>Copy the link — it looks like: <code class="text-neon">drive.google.com/file/d/FILE_ID/view</code></li>
+            <li>Replace with direct URL: <code class="text-neon">drive.google.com/uc?export=view&id=FILE_ID</code></li>
+          </ol>
+        </div>
+        <button type="submit" class="btn-neon-solid px-8 py-2.5 text-sm font-display tracking-widest">SAVE LOGOS</button>
+      </form>
+    </div>
+
+    <!-- ─── SEO ───────────────────────────────────────────────────────────── -->
+    <div class="card p-6">
+      <h2 class="font-display text-neon text-xs font-bold tracking-widest mb-5">SEO & METADATA</h2>
+      <form action="/admin/settings/seo" method="POST" class="space-y-4">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">CLUB NAME</label>
+            <input type="text" name="siteName" value="<%= settings.siteName || 'Technophiles' %>" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">TAGLINE</label>
+            <input type="text" name="tagline" value="<%= settings.tagline || '' %>" placeholder="GCETTB Official Tech Club" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">SEO TITLE <span class="text-gray-600">(browser tab & Google result)</span></label>
+          <input type="text" name="seoTitle" value="<%= settings.seoTitle || '' %>" placeholder="Technophiles - GCETTB Official Tech Club" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">META DESCRIPTION <span class="text-gray-600">(150-160 chars ideal)</span></label>
+          <textarea name="seoDescription" rows="3" class="input-dark text-sm resize-none" placeholder="Join Technophiles — the official tech club of GCETTB..."><%= settings.seoDescription || '' %></textarea>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">META KEYWORDS <span class="text-gray-600">(comma separated)</span></label>
+          <input type="text" name="seoKeywords" value="<%= settings.seoKeywords || '' %>" placeholder="technophiles, gcettb, tech club, events, hackathon" class="input-dark text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">OG IMAGE URL <span class="text-gray-600">(1200×630px for social sharing)</span></label>
+          <input type="url" name="ogImage" value="<%= settings.ogImage || '' %>" placeholder="https://..." class="input-dark text-sm" />
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">CANONICAL URL</label>
+            <input type="url" name="canonicalUrl" value="<%= settings.canonicalUrl || '' %>" placeholder="https://technophiles.gcettb.ac.in" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">TWITTER HANDLE</label>
+            <input type="text" name="twitterHandle" value="<%= settings.twitterHandle || '' %>" placeholder="@technophiles" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">GOOGLE ANALYTICS ID</label>
+            <input type="text" name="googleAnalyticsId" value="<%= settings.googleAnalyticsId || '' %>" placeholder="G-XXXXXXXXXX" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">GOOGLE SITE VERIFICATION</label>
+            <input type="text" name="googleSiteVerification" value="<%= settings.googleSiteVerification || '' %>" placeholder="Paste meta content value" class="input-dark text-sm" />
+          </div>
+        </div>
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">COLLEGE WEBSITE URL</label>
+            <input type="url" name="collegeWebsite" value="<%= settings.collegeWebsite || '' %>" placeholder="https://gcettb.ac.in" class="input-dark text-sm" />
+          </div>
+          <div>
+            <label class="block text-xs text-gray-400 mb-2 font-mono">ACCENT COLOR</label>
+            <div class="flex gap-2">
+              <input type="color" name="accentColor" value="<%= settings.accentColor || '#39FF14' %>" class="input-dark h-10 w-16 cursor-pointer p-1" />
+              <input type="text" id="accent-text" value="<%= settings.accentColor || '#39FF14' %>" placeholder="#39FF14" class="input-dark text-sm flex-1 font-mono" oninput="document.querySelector('input[name=accentColor]').value=this.value" />
+            </div>
+          </div>
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono">FOOTER TEXT</label>
+          <input type="text" name="footerText" value="<%= settings.footerText || '' %>" placeholder="© 2024 Technophiles. Built with ❤️ by the club team." class="input-dark text-sm" />
+        </div>
+        <button type="submit" class="btn-neon-solid px-8 py-2.5 text-sm font-display tracking-widest">SAVE SEO SETTINGS</button>
+      </form>
+    </div>
+  </div>
+</main>
+
+<script>
+function previewLogo(url, targetId) {
+  const img = document.getElementById(targetId);
+  if (img && url) { img.src = url; img.style.display = 'block'; }
+}
+document.querySelector('input[name="accentColor"]')?.addEventListener('input', function() {
+  document.getElementById('accent-text').value = this.value;
+});
+</script>
+<%- include('../partials/footer') %>

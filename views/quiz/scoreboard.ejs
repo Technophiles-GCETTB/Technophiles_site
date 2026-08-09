@@ -1,0 +1,33 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/quiz/<%= quiz._id %>" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="text-center mb-8">
+    <p class="text-neon font-mono text-xs tracking-widest mb-2">◈ RANKINGS</p>
+    <h1 class="font-display font-bold text-white text-2xl"><%= quiz.title %></h1>
+    <p class="text-gray-500">Scoreboard</p>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>Rank</th><th>Student</th><th>Score</th><th>Accuracy</th><th>Time</th></tr></thead>
+      <tbody>
+        <% attempts.forEach((attempt, i) => { %>
+        <tr class="<%= attempt.user?._id?.toString()===user?._id?.toString() ? 'bg-neon/5' : '' %>">
+          <td><span class="font-display font-black <%= i===0?'text-yellow-400':i===1?'text-gray-300':i===2?'text-orange-500':'text-gray-500' %>"><%= i===0?'🥇':i===1?'🥈':i===2?'🥉':'#'+(i+1) %></span></td>
+          <td>
+            <div class="flex items-center gap-2">
+              <img src="<%= attempt.user?.avatar||'/images/default-avatar.png' %>" class="w-7 h-7 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <span class="text-white text-sm font-semibold"><%= attempt.user?.name || 'Unknown' %></span>
+              <% if (attempt.user?._id?.toString()===user?._id?.toString()) { %><span class="badge badge-neon text-xs">YOU</span><% } %>
+            </div>
+          </td>
+          <td><span class="text-neon font-mono font-bold"><%= attempt.totalScore %></span><span class="text-gray-500">/<%= quiz.totalMarks %></span></td>
+          <td><span class="<%= attempt.isPassed?'text-neon':'text-red-400' %> font-mono"><%= attempt.percentage %>%</span></td>
+          <td class="text-gray-500 text-xs font-mono"><%= attempt.timeTaken ? Math.floor(attempt.timeTaken/60)+'m '+attempt.timeTaken%60+'s' : '—' %></td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+</main>
+<%- include('../partials/footer') %>

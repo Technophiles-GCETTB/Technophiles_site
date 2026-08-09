@@ -1,0 +1,83 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ ADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">MANAGE USERS</h1>
+    </div>
+    <div class="flex gap-2">
+      <a href="/admin" class="btn-neon text-sm">DASHBOARD</a>
+      <a href="/admin/activity" class="btn-neon text-sm">ACTIVITY LOGS</a>
+    </div>
+  </div>
+  <!-- Filters -->
+  <form method="GET" class="flex flex-wrap gap-3 mb-6">
+    <input type="text" name="search" value="<%= filters.search||'' %>" placeholder="Search name/email..." class="input-dark text-sm w-52" />
+    <select name="role" class="input-dark text-sm w-36">
+      <option value="">All Roles</option>
+      <% roles.forEach(r => { %><option value="<%= r %>" <%= filters.role===r?'selected':'' %>><%= r %></option><% }) %>
+    </select>
+    <button type="submit" class="btn-neon text-sm px-5">FILTER</button>
+  </form>
+  <!-- Award Points Form -->
+  <div class="card p-4 mb-6">
+    <h3 class="font-display text-white text-xs font-bold tracking-widest mb-3">AWARD / DEDUCT POINTS</h3>
+    <form action="/admin/users/award-points" method="POST" class="flex flex-wrap gap-3">
+      <input type="text" name="userId" placeholder="User ID" required class="input-dark text-sm w-48" />
+      <input type="number" name="points" placeholder="Points (+/-)" required class="input-dark text-sm w-28" />
+      <input type="text" name="description" placeholder="Reason..." class="input-dark text-sm flex-1" />
+      <button type="submit" class="btn-neon-solid text-sm px-6">AWARD</button>
+    </form>
+  </div>
+  <div class="card overflow-hidden">
+    <div class="overflow-x-auto -mx-0"><table>
+      <thead><tr><th>User</th><th class="hidden md:table-cell">Email</th><th>Role</th><th class="hidden sm:table-cell">Points</th><th>Status</th><th class="hidden lg:table-cell">Joined</th><th>Actions</th></tr></thead>
+      <tbody>
+        <% users.forEach(u => { %>
+        <tr>
+          <td>
+            <div class="flex items-center gap-2">
+              <img src="<%= u.avatar||'/images/default-avatar.png' %>" class="w-7 h-7 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <span class="text-white font-semibold"><%= u.name %></span>
+            </div>
+          </td>
+          <td class="text-gray-400 text-xs"><%= u.email %></td>
+          <td>
+            <form action="/admin/users/<%= u._id %>/role?_method=PUT" method="POST" class="flex gap-1">
+              <select name="role" class="bg-black border border-dark-border text-gray-300 text-xs rounded px-2 py-1">
+                <% roles.forEach(r => { %><option value="<%= r %>" <%= u.role===r?'selected':'' %>><%= r %></option><% }) %>
+              </select>
+              <button type="submit" class="text-neon text-xs hover:underline px-1">SET</button>
+            </form>
+          </td>
+          <td><span class="text-neon font-mono font-bold"><%= u.points||0 %></span></td>
+          <td><span class="badge <%= u.isActive?'badge-neon':'badge-red' %>"><%= u.isActive?'ACTIVE':'BANNED' %></span></td>
+          <td class="text-gray-500 text-xs font-mono"><%= new Date(u.createdAt).toLocaleDateString() %></td>
+          <td>
+            <div class="flex gap-2">
+              <form action="/admin/users/<%= u._id %>/toggle?_method=PUT" method="POST">
+                <button type="submit" class="text-xs font-mono text-yellow-400 hover:text-yellow-300"><%= u.isActive?'BAN':'UNBAN' %></button>
+              </form>
+              <% if (user.role==='superadmin' && u._id.toString()!==user._id.toString()) { %>
+              <form action="/admin/users/<%= u._id %>?_method=DELETE" method="POST" onsubmit="return confirm('Delete user?')">
+                <button type="submit" class="text-xs font-mono text-red-400 hover:text-red-300">DEL</button>
+              </form>
+              <% } %>
+            </div>
+          </td>
+        </tr>
+        <% }) %>
+      </tbody>
+    </table></div>
+  </div>
+  <!-- Pagination -->
+  <% if (pagination.pages > 1) { %>
+  <div class="flex gap-2 justify-center mt-6">
+    <% for (let p=1; p<=pagination.pages; p++) { %>
+    <a href="?page=<%= p %>&role=<%= filters.role||'' %>&search=<%= filters.search||'' %>" class="w-8 h-8 flex items-center justify-center text-sm font-mono rounded border <%= pagination.page===p ? 'border-neon text-neon' : 'border-dark-border text-gray-500 hover:border-neon/50' %>"><%= p %></a>
+    <% } %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

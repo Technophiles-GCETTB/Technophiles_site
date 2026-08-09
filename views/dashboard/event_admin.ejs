@@ -1,0 +1,59 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+  <div class="flex items-center justify-between mb-8">
+    <div>
+      <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ EVENT ADMIN</p>
+      <h1 class="font-display font-bold text-white text-2xl">WELCOME, <%= user.name.toUpperCase().split(' ')[0] %></h1>
+    </div>
+    <a href="/events/create" class="btn-neon-solid text-sm">+ CREATE EVENT</a>
+  </div>
+  <div class="grid grid-cols-2 gap-4 mb-8">
+    <div class="card p-5 text-center">
+      <p class="text-3xl font-display font-black neon-text"><%= myEvents.length %></p>
+      <p class="text-xs text-gray-500 font-mono mt-1">MY EVENTS</p>
+    </div>
+    <div class="card p-5 text-center">
+      <p class="text-3xl font-display font-black text-white"><%= totalParticipants %></p>
+      <p class="text-xs text-gray-500 font-mono mt-1">TOTAL REGISTRATIONS</p>
+    </div>
+  </div>
+  <div class="card p-6">
+    <div class="flex items-center justify-between mb-4">
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">MY EVENTS</h2>
+      <a href="/events" class="text-neon text-xs font-mono hover:underline">ALL EVENTS →</a>
+    </div>
+    <% if (myEvents.length === 0) { %>
+    <div class="text-center py-10"><p class="text-gray-500 mb-4">No events created yet</p><a href="/events/create" class="btn-neon-solid text-sm">Create Your First Event</a></div>
+    <% } else { %>
+    <div class="overflow-x-auto">
+      <table>
+        <thead><tr><th>Event</th><th>Type</th><th>Date</th><th>Participants</th><th>Status</th><th>Actions</th></tr></thead>
+        <tbody>
+          <% myEvents.forEach(event => { %>
+          <tr>
+            <td class="text-white font-semibold"><%= event.title %></td>
+            <td><span class="badge badge-gray"><%= event.type %></span></td>
+            <td class="text-gray-400 text-xs font-mono"><%= new Date(event.startDate).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) %></td>
+            <td>
+              <div class="flex items-center gap-2">
+                <div class="w-16 progress-bar"><div class="progress-fill" style="width:<%= Math.min((event.participants.length/event.maxParticipants)*100,100) %>%"></div></div>
+                <span class="text-xs font-mono text-gray-400"><%= event.participants.length %>/<%= event.maxParticipants %></span>
+              </div>
+            </td>
+            <td><span class="badge <%= event.status==='published'?'badge-neon':event.status==='ongoing'?'badge-yellow':'badge-gray' %>"><%= event.status %></span></td>
+            <td>
+              <div class="flex gap-2">
+                <a href="/events/<%= event._id %>/participants" class="text-xs text-neon hover:underline font-mono">PARTICIPANTS</a>
+                <a href="/events/<%= event._id %>/edit" class="text-xs text-gray-400 hover:text-neon font-mono">EDIT</a>
+              </div>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <% } %>
+  </div>
+</main>
+<%- include('../partials/footer') %>

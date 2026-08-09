@@ -1,0 +1,90 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-3xl mx-auto">
+  <div class="mb-6"><a href="/hackathons" class="text-gray-500 text-sm hover:text-neon font-mono">← BACK</a></div>
+  <div class="card p-8 relative overflow-hidden">
+    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+    <h1 class="font-display font-bold text-white text-2xl tracking-widest mb-8">CREATE HACKATHON</h1>
+    <% if (typeof error !== 'undefined' && error) { %>
+    <div class="bg-red-500/10 border border-red-500/30 text-red-400 px-4 py-3 rounded text-sm mb-6">⚠ <%= error %></div>
+    <% } %>
+    <form action="/hackathons" method="POST" class="space-y-5">
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TITLE *</label>
+        <input type="text" name="title" required placeholder="HackTech 2024" class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">TAGLINE</label>
+        <input type="text" name="tagline" placeholder="Build. Innovate. Win." class="input-dark" />
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">DESCRIPTION *</label>
+        <textarea name="description" required rows="4" placeholder="Describe the hackathon..." class="input-dark resize-none"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">HACKATHON START *</label>
+          <input type="datetime-local" name="hackathonStart" required class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">HACKATHON END *</label>
+          <input type="datetime-local" name="hackathonEnd" required class="input-dark" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">REGISTRATION START</label>
+          <input type="datetime-local" name="registrationStart" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">REGISTRATION END</label>
+          <input type="datetime-local" name="registrationEnd" class="input-dark" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">SUBMISSION DEADLINE</label>
+        <input type="datetime-local" name="submissionDeadline" class="input-dark" />
+      </div>
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MIN TEAM SIZE</label>
+          <input type="number" name="minTeamSize" value="1" min="1" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MAX TEAM SIZE</label>
+          <input type="number" name="maxTeamSize" value="4" min="1" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MAX TEAMS</label>
+          <input type="number" name="maxTeams" value="50" min="1" class="input-dark" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-4">
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">VENUE</label>
+          <input type="text" name="venue" placeholder="Main Hall / Online" class="input-dark" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">POINTS REWARD</label>
+          <input type="number" name="pointsReward" value="100" class="input-dark" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-xs text-gray-400 mb-2 font-mono tracking-wider">MEETING LINK (if virtual)</label>
+        <input type="url" name="meetingLink" placeholder="https://..." class="input-dark" />
+      </div>
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="isVirtual" class="accent-neon" />
+          <span class="text-gray-400 text-sm">Virtual Event</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer">
+          <input type="checkbox" name="isPublic" checked class="accent-neon" />
+          <span class="text-gray-400 text-sm">Public</span>
+        </label>
+      </div>
+      <button type="submit" class="btn-neon-solid px-8 py-3 font-display tracking-widest text-sm">CREATE HACKATHON</button>
+    </form>
+  </div>
+</main>
+<%- include('../partials/footer') %>

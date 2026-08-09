@@ -1,0 +1,122 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-7xl mx-auto">
+
+  <!-- Hero header -->
+  <div class="text-center mb-12">
+    <p class="text-neon font-mono text-xs tracking-widest mb-2">◈ BUILT BY OUR COMMUNITY</p>
+    <h1 class="font-display font-black text-white text-4xl mb-3">PROJECT SHOWCASE</h1>
+    <p class="text-gray-400 max-w-xl mx-auto">Explore projects built by Technophiles members — from hackathon winners to side projects and open-source tools.</p>
+    <% if (currentUser) { %>
+    <a href="/projects/submit" class="btn-neon-solid text-sm px-8 py-3 mt-6 inline-block font-display tracking-widest">+ SUBMIT YOUR PROJECT</a>
+    <% } else { %>
+    <a href="/auth/login" class="btn-neon text-sm px-8 py-3 mt-6 inline-block font-display tracking-widest">LOGIN TO SUBMIT</a>
+    <% } %>
+  </div>
+
+  <!-- Featured Projects -->
+  <% if (featured.length > 0) { %>
+  <section class="mb-12">
+    <div class="flex items-center gap-3 mb-5">
+      <span class="text-neon text-lg">⭐</span>
+      <h2 class="font-display text-white font-bold text-sm tracking-widest">FEATURED PROJECTS</h2>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3 sm:gap-5">
+      <% featured.forEach(p => { %>
+      <a href="/projects/<%= p._id %>" class="card relative overflow-hidden group block">
+        <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-transparent via-neon to-transparent"></div>
+        <% if (p.thumbnail) { %>
+        <div class="w-full h-40 overflow-hidden bg-dark-border">
+          <img src="<%= p.thumbnail %>" alt="<%= p.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-4xl\'>💻</div>'">
+        </div>
+        <% } else { %>
+        <div class="w-full h-40 bg-dark-hover flex items-center justify-center text-4xl">💻</div>
+        <% } %>
+        <div class="p-5">
+          <div class="flex items-center gap-2 mb-2">
+            <span class="badge badge-neon text-xs">⭐ FEATURED</span>
+            <span class="badge badge-gray text-xs"><%= p.category.replace('_',' ') %></span>
+          </div>
+          <h3 class="text-white font-bold text-lg group-hover:text-neon transition-colors"><%= p.title %></h3>
+          <p class="text-gray-500 text-sm mt-1 line-clamp-2"><%= p.description %></p>
+          <div class="flex flex-wrap gap-1 mt-3">
+            <% p.techStack.slice(0,4).forEach(t => { %><span class="badge badge-gray text-xs"><%= t %></span><% }) %>
+          </div>
+          <div class="flex items-center justify-between mt-4 text-xs text-gray-500 font-mono">
+            <div class="flex items-center gap-2">
+              <% (p.authors||[]).slice(0,3).forEach(a => { %>
+              <img src="<%= a.avatar||'/images/default-avatar.png' %>" class="w-5 h-5 rounded-full border border-dark-border" onerror="this.src='/images/default-avatar.png'">
+              <% }) %>
+            </div>
+            <span>❤ <%= p.likes %> · 👁 <%= p.views %></span>
+          </div>
+        </div>
+      </a>
+      <% }) %>
+    </div>
+  </section>
+  <% } %>
+
+  <!-- Filters -->
+  <form method="GET" class="flex flex-wrap gap-3 mb-8">
+    <input type="text" name="search" value="<%= filters.search||'' %>" placeholder="Search projects..." class="input-dark text-sm w-52" />
+    <select name="category" class="input-dark text-sm w-40">
+      <option value="">All Categories</option>
+      <% ['web','mobile','ai_ml','iot','game','tool','blockchain','other'].forEach(c => { %>
+      <option value="<%= c %>" <%= filters.category===c?'selected':'' %>><%= c.replace('_',' ').toUpperCase() %></option>
+      <% }) %>
+    </select>
+    <select name="sort" class="input-dark text-sm w-36">
+      <option value="newest" <%= filters.sort==='newest'?'selected':'' %>>Newest</option>
+      <option value="popular" <%= filters.sort==='popular'?'selected':'' %>>Most Liked</option>
+      <option value="views" <%= filters.sort==='views'?'selected':'' %>>Most Viewed</option>
+    </select>
+    <button type="submit" class="btn-neon text-sm px-5">FILTER</button>
+    <% if (filters.search||filters.category||filters.sort) { %><a href="/projects" class="btn-neon text-sm px-4 text-gray-400">CLEAR</a><% } %>
+  </form>
+
+  <!-- All Projects Grid -->
+  <% if (projects.length === 0) { %>
+  <div class="card p-16 text-center">
+    <p class="text-5xl mb-4">💡</p>
+    <p class="text-gray-400 text-lg mb-2">No projects found</p>
+    <% if (currentUser) { %><a href="/projects/submit" class="btn-neon-solid text-sm mt-4 inline-block">Submit First Project</a><% } %>
+  </div>
+  <% } else { %>
+  <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+    <% projects.forEach(p => { %>
+    <a href="/projects/<%= p._id %>" class="card group block overflow-hidden">
+      <div class="w-full h-36 overflow-hidden bg-dark-border">
+        <% if (p.thumbnail && !p.thumbnail.includes('project-default')) { %>
+        <img src="<%= p.thumbnail %>" alt="<%= p.title %>" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300" onerror="this.parentElement.innerHTML='<div class=\'w-full h-full flex items-center justify-center text-3xl bg-dark-hover\'>💻</div>'">
+        <% } else { %>
+        <div class="w-full h-full flex items-center justify-center text-3xl bg-dark-hover">
+          <%= p.category==='web'?'🌐':p.category==='mobile'?'📱':p.category==='ai_ml'?'🤖':p.category==='game'?'🎮':p.category==='iot'?'🔌':'💡' %>
+        </div>
+        <% } %>
+      </div>
+      <div class="p-4">
+        <div class="flex items-center gap-1 mb-2 flex-wrap">
+          <span class="badge badge-gray text-xs"><%= p.category.replace('_',' ') %></span>
+          <% if (p.isFeatured) { %><span class="badge badge-neon text-xs">⭐</span><% } %>
+        </div>
+        <h3 class="text-white font-semibold text-sm group-hover:text-neon transition-colors leading-tight mb-1"><%= p.title %></h3>
+        <p class="text-gray-500 text-xs line-clamp-2 mb-3"><%= p.description %></p>
+        <div class="flex flex-wrap gap-1 mb-3">
+          <% p.techStack.slice(0,3).forEach(t => { %><span class="text-xs text-gray-600 font-mono">#<%= t %></span><% }) %>
+        </div>
+        <div class="flex items-center justify-between text-xs text-gray-600 font-mono pt-2 border-t border-dark-border">
+          <div class="flex -space-x-1">
+            <% (p.authors||[]).slice(0,2).forEach(a => { %>
+            <img src="<%= a.avatar||'/images/default-avatar.png' %>" class="w-5 h-5 rounded-full border border-black" onerror="this.src='/images/default-avatar.png'">
+            <% }) %>
+          </div>
+          <span>❤ <%= p.likes %></span>
+        </div>
+      </div>
+    </a>
+    <% }) %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>

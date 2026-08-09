@@ -1,0 +1,70 @@
+<%- include('../partials/head') %>
+<%- include('../partials/navbar') %>
+<main class="pt-20 md:pt-24 pb-10 md:pb-16 px-3 sm:px-4 max-w-5xl mx-auto">
+  <div class="mb-6"><a href="/hackathons/<%= hackathon._id %>/leaderboard" class="text-gray-500 text-sm hover:text-neon font-mono">← LEADERBOARD</a></div>
+  <div class="mb-8">
+    <p class="text-neon font-mono text-xs tracking-widest mb-1">◈ JUDGE PANEL</p>
+    <h1 class="font-display font-bold text-white text-2xl"><%= hackathon.title %></h1>
+  </div>
+  <% if (submissions.length === 0) { %>
+  <div class="card p-12 text-center"><p class="text-4xl mb-4">📭</p><p class="text-gray-400">No submissions yet</p></div>
+  <% } else { %>
+  <div class="space-y-6">
+    <% submissions.forEach(sub => { %>
+    <%
+      const myScore = sub.scores.find(s => s.judge?.toString() === user._id?.toString());
+      const isScored = !!myScore;
+    %>
+    <div class="card p-6 <%= isScored ? 'border-neon/20' : 'border-yellow-500/20' %>">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <div class="flex items-center gap-2 mb-1">
+            <h3 class="text-white font-bold text-lg"><%= sub.projectTitle %></h3>
+            <% if (isScored) { %><span class="badge badge-neon text-xs">✓ SCORED</span><% } else { %><span class="badge badge-yellow text-xs">PENDING</span><% } %>
+          </div>
+          <p class="text-gray-500 text-sm">Team: <span class="text-white font-semibold"><%= sub.team?.name %></span></p>
+        </div>
+        <% if (isScored) { %>
+        <div class="text-right">
+          <p class="text-3xl font-display font-black neon-text"><%= myScore.total %></p>
+          <p class="text-xs text-gray-500">/40 pts</p>
+        </div>
+        <% } %>
+      </div>
+      <p class="text-gray-400 text-sm mb-4 leading-relaxed"><%= sub.description %></p>
+      <div class="flex gap-3 mb-4">
+        <a href="<%= sub.githubLink %>" target="_blank" class="btn-neon text-xs px-4 py-2">GitHub ↗</a>
+        <% if (sub.demoLink) { %><a href="<%= sub.demoLink %>" target="_blank" class="btn-neon text-xs px-4 py-2">Demo ↗</a><% } %>
+      </div>
+      <% if (sub.techStack?.length) { %>
+      <div class="flex flex-wrap gap-1 mb-4"><% sub.techStack.forEach(t => { %><span class="badge badge-gray text-xs"><%= t %></span><% }) %></div>
+      <% } %>
+      <!-- Scoring Form -->
+      <form action="/hackathons/<%= hackathon._id %>/submissions/<%= sub._id %>/score" method="POST" class="border-t border-dark-border pt-4">
+        <p class="text-xs text-gray-500 font-mono mb-3">SCORING CRITERIA (0–10 each)</p>
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-4">
+          <% const criteria = [
+            ['innovation', 'Innovation', myScore?.innovation],
+            ['technicality', 'Technical', myScore?.technicality],
+            ['impact', 'Impact', myScore?.impact],
+            ['presentation', 'Presentation', myScore?.presentation],
+          ]; %>
+          <% criteria.forEach(([name, label, val]) => { %>
+          <div>
+            <label class="block text-xs text-gray-400 mb-1 font-mono"><%= label.toUpperCase() %></label>
+            <input type="number" name="<%= name %>" min="0" max="10" value="<%= val || '' %>" required placeholder="0-10" class="input-dark text-sm text-center font-mono" />
+          </div>
+          <% }) %>
+        </div>
+        <div class="mb-4">
+          <label class="block text-xs text-gray-400 mb-1 font-mono">FEEDBACK (optional)</label>
+          <textarea name="feedback" rows="2" placeholder="Brief feedback for the team..." class="input-dark text-sm resize-none"><%= myScore?.feedback || '' %></textarea>
+        </div>
+        <button type="submit" class="btn-neon-solid text-sm px-8 py-2 font-display tracking-widest"><%= isScored ? 'UPDATE SCORE' : 'SUBMIT SCORE' %></button>
+      </form>
+    </div>
+    <% }) %>
+  </div>
+  <% } %>
+</main>
+<%- include('../partials/footer') %>
